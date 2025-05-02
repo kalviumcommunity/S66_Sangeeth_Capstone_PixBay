@@ -26,12 +26,12 @@ const WhiteBoard: React.FC<WhiteBoardProps> = ({ roomCode, userId }) => {
   const [tool, setTool] = useState("pen");
   const [prevActions, setPrevActions] = useState<DrawingAction[]>([]);
 
-  // Initialize canvas and socket
+  // Initializing canvas and socket
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    // Set up canvas
+    // Setting up canvas
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
@@ -47,11 +47,11 @@ const WhiteBoard: React.FC<WhiteBoardProps> = ({ roomCode, userId }) => {
     resizeCanvas();
     window.addEventListener("resize", resizeCanvas);
 
-    // Initialize dark background
+    // default bg color
     ctx.fillStyle = "#121212";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    // Set up socket connection
+    //socket connection
     const newSocket = io("http://localhost:5000", { transports: ["polling"] });
     setSocket(newSocket);
 
@@ -81,7 +81,7 @@ const WhiteBoard: React.FC<WhiteBoardProps> = ({ roomCode, userId }) => {
   const redrawCanvas = (actions = prevActions) => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-    
+
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
@@ -106,7 +106,7 @@ const WhiteBoard: React.FC<WhiteBoardProps> = ({ roomCode, userId }) => {
         currentColor = action.color || currentColor;
         currentSize = action.brushSize || currentSize;
         currentTool = action.tool || currentTool;
-        
+
         ctx.beginPath();
         ctx.moveTo(currentX, currentY);
         ctx.strokeStyle = currentColor;
@@ -127,7 +127,7 @@ const WhiteBoard: React.FC<WhiteBoardProps> = ({ roomCode, userId }) => {
   const handleRemoteAction = (action: DrawingAction) => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-    
+
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
@@ -233,13 +233,13 @@ const WhiteBoard: React.FC<WhiteBoardProps> = ({ roomCode, userId }) => {
 
   const undoLastAction = () => {
     if (prevActions.length === 0) return;
-    
+
     const newActions = [...prevActions];
     newActions.pop();
     setPrevActions(newActions);
     redrawCanvas(newActions);
+
     
-    // You might want to send this to server too
     if (socket) {
       socket.emit("whiteboard-undo", { roomCode });
     }
@@ -251,13 +251,8 @@ const WhiteBoard: React.FC<WhiteBoardProps> = ({ roomCode, userId }) => {
       animate={{ opacity: 1 }}
       className="w-full h-full flex flex-col bg-[#171717]"
     >
-      {/* <div className="flex justify-between items-center p-3 bg-gray-800 border-b border-gray-700">
-        <h2 className="text-xl font-bold text-white flex items-center">
-        
-        </h2>
-      </div> */}
-      
-      {/* Toolbar - now has justify-between to push items to sides */}
+
+   
       <div className="flex justify-between items-center p-2 bg-[#1F1F1F] border-b border-gray-800">
         {/* Left side tools */}
         <div className="flex items-center space-x-2">
@@ -305,7 +300,7 @@ const WhiteBoard: React.FC<WhiteBoardProps> = ({ roomCode, userId }) => {
             <span className="text-white ml-2 w-6 text-sm">{brushSize}</span>
           </div>
         </div>
-        
+
         {/* Right side - Undo and Clear buttons moved here */}
         <div className="flex items-center space-x-2">
           <button
@@ -324,7 +319,7 @@ const WhiteBoard: React.FC<WhiteBoardProps> = ({ roomCode, userId }) => {
           </button>
         </div>
       </div>
-      
+
       {/* Canvas */}
       <div className="flex-1 relative bg-gray-800 overflow-hidden">
         <canvas

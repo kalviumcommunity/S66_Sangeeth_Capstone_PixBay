@@ -5,7 +5,7 @@ export const roomSockets = (io) => {
   io.on("connection", (socket) => {
     console.log("User connected:", socket.id);
 
-    // Store whiteboard history per room
+    // Store whiteboard history per room temp:=>
     const whiteboardHistory = {};
 
     socket.on("join-room", async (roomName, peerId) => {
