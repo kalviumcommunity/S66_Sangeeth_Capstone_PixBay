@@ -28,6 +28,7 @@ export enum TaskType {
 
 interface User {
   id: string;
+  userId: string;
   name: string | null;
   email: string | null;
   role: string;
@@ -41,7 +42,7 @@ interface AddTaskModalProps {
   projectId: string;
   onTaskAdded: () => void;
   workspaceMembers?: User[];
-  isFetchingMembers?: boolean; // New prop for loading state
+  isFetchingMembers?: boolean;
 }
 
 const AddTaskModal: React.FC<AddTaskModalProps> = ({
@@ -76,12 +77,6 @@ const AddTaskModal: React.FC<AddTaskModalProps> = ({
     }
   }, [isOpen]);
 
-  // Debugging log for workspaceMembers
-  useEffect(() => {
-    console.log("AddTaskModal received workspaceMembers:", workspaceMembers);
-    console.log("AddTaskModal isFetchingMembers:", isFetchingMembers);
-  }, [workspaceMembers, isFetchingMembers]);
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
@@ -89,6 +84,17 @@ const AddTaskModal: React.FC<AddTaskModalProps> = ({
 
     try {
       const token = await getToken();
+
+      // Map workspace member ID to actual user ID
+      let actualUserId = assigneeId;
+      if (assigneeId) {
+        const selectedAssignee = workspaceMembers.find(
+          (m) => m.id === assigneeId
+        );
+        if (selectedAssignee && selectedAssignee.userId) {
+          actualUserId = selectedAssignee.userId;
+        }
+      }
 
       const data = {
         title,
@@ -98,24 +104,18 @@ const AddTaskModal: React.FC<AddTaskModalProps> = ({
         status: TaskStatus.TODO,
         projectId,
         dueDate: dueDate || undefined,
-        assigneeId: assigneeId || undefined,
+        assigneeId: actualUserId || undefined,
       };
 
-      console.log("Data being sent to backend:", data);
+      const apiUrl = getApiEndpoint("/api/tasks/create");
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const response = await axios.post(apiUrl, data, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
 
-      const response = await axios.post(
-        getApiEndpoint("/api/tasks/create"),
-        data,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        },
-      );
-
-      console.log("Task created:", response.data);
       onTaskAdded();
       onClose();
     } catch (error) {
-      console.error("Failed to create task:", error);
       if (axios.isAxiosError(error)) {
         setError(error.response?.data?.error || "Failed to create task");
       } else {

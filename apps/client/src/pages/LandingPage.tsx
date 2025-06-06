@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { ArrowRight, Moon, Sun } from "lucide-react";
+import { ArrowRight, Moon, Sun, AlertCircle, X } from "lucide-react";
 import axios from "axios";
 import { useUser, useAuth } from "@clerk/clerk-react";
 import { useNavigate } from "react-router-dom";
@@ -19,6 +19,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import api from "../utils/api";
+import { motion, AnimatePresence } from "framer-motion";
 
 interface Workspace {
   id: string | number;
@@ -38,16 +39,18 @@ const LandingPage = () => {
   const [darkMode, setDarkMode] = useState(true);
   const [roomCode, setRoomCode] = useState("");
   const [showAlert, setShowAlert] = useState(false);
+  const [alertMessage, setAlertMessage] = useState("");
   const [userName, setUserName] = useState("");
   const [showNameModal, setShowNameModal] = useState(false);
   const [showWorkspaceModal, setShowWorkspaceModal] = useState(false);
-  const [workspaceNameInput, setWorkspaceNameInput] = useState("pixbay");
+  const [workspaceNameInput, setWorkspaceNameInput] = useState("");
   const [workspaces, setWorkspaces] = useState<Workspace[]>([]);
   const [selectedWorkspace, setSelectedWorkspace] = useState("");
   const [isNameSubmitLoading, setIsNameSubmitLoading] = useState(false);
   const [isCreateWorkspaceLoading, setIsCreateWorkspaceLoading] =
     useState(false);
   const [isJoinWorkspaceLoading, setIsJoinWorkspaceLoading] = useState(false);
+  // const [workspaceError, setWorkspaceError] = useState<string | null>(null);
 
   const { isSignedIn, getToken } = useAuth();
   const { user } = useUser();
@@ -65,11 +68,11 @@ const LandingPage = () => {
         // First ensure user exists
         const userResponse = await axios.get(
           api.getApiEndpoint(
-            `/api/users/check?email=${encodeURIComponent(email)}`,
+            `/api/users/check?email=${encodeURIComponent(email)}`
           ),
           {
             headers: { Authorization: `Bearer ${token}` },
-          },
+          }
         );
 
         console.log("User data response:", userResponse.data);
@@ -86,7 +89,7 @@ const LandingPage = () => {
             api.getApiEndpoint("/api/workspaces/user"),
             {
               headers: { Authorization: `Bearer ${token}` },
-            },
+            }
           );
           console.log("Workspaces response:", workspacesResponse.data);
           setWorkspaces(workspacesResponse.data);
@@ -119,7 +122,7 @@ const LandingPage = () => {
           },
           {
             headers: { Authorization: `Bearer ${token}` },
-          },
+          }
         );
 
         setUserName(userName);
@@ -130,7 +133,7 @@ const LandingPage = () => {
           api.getApiEndpoint("/api/workspaces/user"),
           {
             headers: { Authorization: `Bearer ${token}` },
-          },
+          }
         );
         setWorkspaces(workspacesResponse.data);
       } catch (error) {
@@ -169,7 +172,7 @@ const LandingPage = () => {
           headers: {
             Authorization: `Bearer ${token}`,
           },
-        },
+        }
       );
 
       console.log("Workspace created with name:", finalWorkspaceName);
@@ -190,7 +193,14 @@ const LandingPage = () => {
       return;
     }
 
+    if (!roomCode.trim()) {
+      setAlertMessage("Please enter a workspace code");
+      setShowAlert(true);
+      return;
+    }
+
     setIsJoinWorkspaceLoading(true);
+
     try {
       const token = await getToken();
       const workspaceName = roomCode;
@@ -198,19 +208,39 @@ const LandingPage = () => {
       await axios.post(
         api.getApiEndpoint("/api/workspaces/join"),
         { workspaceName: workspaceName },
-        { headers: { Authorization: `Bearer ${token}` } },
+        { headers: { Authorization: `Bearer ${token}` } }
       );
       console.log("joined WorkSpace:", workspaceName);
       navigate(`/workspace/${workspaceName}`);
     } catch (error) {
       if (axios.isAxiosError(error)) {
         if (error.response?.status === 400) {
-          alert("You are already a member of this workspace!");
-          navigate(`/workspace/${roomCode}`);
+          if (error.response.data?.message?.includes("already a member")) {
+            alert("You are already a member of this workspace!");
+            navigate(`/workspace/${roomCode}`);
+          } else {
+            setAlertMessage(
+              "Invalid workspace code. Please check and try again."
+            );
+            setShowAlert(true);
+          }
+        } else if (error.response?.status === 404) {
+          setAlertMessage(
+            "Workspace not found. Please check the code and try again."
+          );
+          setShowAlert(true);
         } else {
+          setAlertMessage(
+            `Failed to join workspace: ${error.response?.data?.message || "Unknown error"}`
+          );
+          setShowAlert(true);
           console.error("Error joining workspace:", error);
         }
       } else {
+        setAlertMessage(
+          "An unexpected error occurred. Please try again later."
+        );
+        setShowAlert(true);
         console.error("Error joining workspace:", error);
       }
     } finally {
@@ -227,6 +257,31 @@ const LandingPage = () => {
 
   const toggleTheme = () => {
     setDarkMode(!darkMode);
+  };
+
+  // Modal animation variants (matching SprintFormModal)
+  const backdropVariants = {
+    hidden: { opacity: 0 },
+    visible: { opacity: 1 },
+  };
+
+  const modalVariants = {
+    hidden: {
+      opacity: 0,
+      y: 20,
+      scale: 0.98,
+    },
+    visible: {
+      opacity: 1,
+      y: 0,
+      scale: 1,
+    },
+    exit: {
+      opacity: 0,
+      y: 10,
+      scale: 0.98,
+      transition: { duration: 0.15, ease: "easeOut" },
+    },
   };
 
   return (
@@ -306,7 +361,9 @@ const LandingPage = () => {
                   id="workspace-name"
                   type="text"
                   value={workspaceNameInput}
-                  onChange={(e) => setWorkspaceNameInput(e.target.value)}
+                  onChange={(e) =>
+                    setWorkspaceNameInput(e.target.value.replace(/\s+/g, "-"))
+                  }
                   placeholder="Enter workspace name"
                   className={`block w-full px-4 py-2.5 rounded-lg border-2 shadow-sm 
                   transition-all duration-200 ease-in-out
@@ -490,6 +547,90 @@ const LandingPage = () => {
             video meetings.
           </p>
 
+          {/* Alert Modal with SprintFormModal styling */}
+          <AnimatePresence mode="wait">
+            {showAlert && (
+              <motion.div
+                className="fixed inset-0 flex items-center justify-center z-50"
+                initial="hidden"
+                animate="visible"
+                exit="hidden"
+                variants={backdropVariants}
+                transition={{ duration: 0.2 }}
+              >
+                <div
+                  className="absolute inset-0 backdrop-blur-md bg-black/30"
+                  onClick={() => setShowAlert(false)}
+                ></div>
+                <motion.div
+                  className={`relative w-full max-w-md rounded-lg shadow-xl backdrop-blur-sm overflow-hidden`}
+                  variants={modalVariants}
+                  initial="hidden"
+                  animate="visible"
+                  exit="exit"
+                  transition={{
+                    type: "spring",
+                    damping: 25,
+                    stiffness: 300,
+                    delay: 0.05,
+                  }}
+                >
+                  {/* Gradient border wrapper with thinner border */}
+                  <div className="p-[1px] bg-gradient-to-r from-emerald-400 to-teal-500 rounded-lg">
+                    <div
+                      className={`p-8 rounded-lg ${
+                        darkMode
+                          ? "bg-[#171717]/95 border-[#2C2C2C]"
+                          : "bg-gray-100/95"
+                      }`}
+                    >
+                      <div className="flex justify-between items-center mb-6">
+                        <div className="flex items-center">
+                          <AlertCircle
+                            className="text-red-500 mr-3"
+                            size={24}
+                          />
+                          <h2
+                            className={`text-2xl font-bold ${
+                              darkMode ? "text-white" : "text-[#212121]"
+                            }`}
+                          >
+                            Alert
+                          </h2>
+                        </div>
+                        <button
+                          onClick={() => setShowAlert(false)}
+                          className={`p-2 rounded-full hover:bg-opacity-80 ${
+                            darkMode
+                              ? "text-gray-400 hover:bg-[#2C2C2C]"
+                              : "text-gray-600 hover:bg-gray-200"
+                          }`}
+                        >
+                          <X size={20} />
+                        </button>
+                      </div>
+
+                      <div className="mb-6">
+                        <p
+                          className={`text-base font-normal ${darkMode ? "text-gray-300" : "text-gray-700"}`}
+                        >
+                          {alertMessage}
+                        </p>
+                      </div>
+
+                      <button
+                        onClick={() => setShowAlert(false)}
+                        className="w-full py-3 px-4 rounded-lg bg-emerald-400 hover:bg-emerald-500 text-white font-medium transition-colors duration-200"
+                      >
+                        Close
+                      </button>
+                    </div>
+                  </div>
+                </motion.div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
           <div className="flex flex-wrap justify-center gap-4 mb-12">
             <button
               onClick={ShowMaodalForSpace}
@@ -616,26 +757,32 @@ const LandingPage = () => {
               className={`fixed inset-0 flex items-center justify-center z-50`}
               style={{ backgroundColor: "rgba(0, 0, 0, 0.7)" }}
             >
-              <div
-                className={`w-full max-w-md transform overflow-hidden rounded-lg p-6 shadow-xl ${
-                  darkMode
-                    ? "bg-[#1C1C1C] text-white"
-                    : "bg-white text-[#212121]"
-                }`}
-              >
-                <p
-                  className={`text-center text-lg font-medium mb-4 ${
-                    darkMode ? "text-white" : "text-[#212121]"
+              {/* Gradient border wrapper with thinner border */}
+              <div className="p-[1px] w-full max-w-md rounded-lg bg-gradient-to-r from-emerald-400 to-teal-500">
+                <div
+                  className={`w-full transform overflow-hidden rounded-lg p-6 shadow-xl ${
+                    darkMode
+                      ? "bg-[#1C1C1C] text-white"
+                      : "bg-white text-[#212121]"
                   }`}
                 >
-                  Join the room first
-                </p>
-                <button
-                  onClick={() => setShowAlert(false)}
-                  className="w-full px-4 py-2 text-sm font-medium text-white bg-emerald-500 border border-transparent rounded-md shadow-sm hover:bg-emerald-600 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition duration-150 ease-in-out"
-                >
-                  Close
-                </button>
+                  <div className="flex items-center justify-center mb-4 text-red-500">
+                    <AlertCircle size={24} />
+                  </div>
+                  <p
+                    className={`text-center text-lg font-medium mb-6 ${
+                      darkMode ? "text-white" : "text-[#212121]"
+                    }`}
+                  >
+                    {alertMessage}
+                  </p>
+                  <button
+                    onClick={() => setShowAlert(false)}
+                    className="w-full px-4 py-2 text-sm font-medium text-white bg-emerald-500 border border-transparent rounded-md shadow-sm hover:bg-emerald-600 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition duration-150 ease-in-out"
+                  >
+                    Close
+                  </button>
+                </div>
               </div>
             </div>
           )}

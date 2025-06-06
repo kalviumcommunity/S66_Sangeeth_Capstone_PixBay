@@ -43,7 +43,7 @@ export const createTask = async (req, res) => {
     // Fetch the workspace name using the workspaceId
     const workspace = await prisma.workspace.findUnique({
       where: { id: project.workspaceId },
-      select: { name: true },
+      select: { name: true, id: true },
     });
 
     if (!workspace) {
@@ -63,7 +63,35 @@ export const createTask = async (req, res) => {
     if (!workspaceMember) {
       return res
         .status(403)
-        .json({ error: "User is not a member of the project’s workspace" });
+        .json({ error: "User is not a member of the project's workspace" });
+    }
+
+    // Validate assignee if provided
+    if (assigneeId && assigneeId.trim() !== '') {
+      // Check if assignee exists
+      const assignee = await prisma.user.findUnique({
+        where: { id: assigneeId },
+      });
+      
+      if (!assignee) {
+        return res.status(404).json({ error: "Assignee not found" });
+      }
+      
+      // Check workspace membership
+      const assigneeIsMember = await prisma.workspaceMember.findUnique({
+        where: {
+          workspaceId_userId: {
+            workspaceId: workspace.id,
+            userId: assigneeId,
+          },
+        },
+      });
+
+      if (!assigneeIsMember) {
+        return res.status(403).json({ 
+          error: "Selected assignee is not a member of this workspace"
+        });
+      }
     }
 
     // Create the task with the workspace name as parentId
@@ -77,7 +105,7 @@ export const createTask = async (req, res) => {
         status: status || "TODO",
         dueDate: dueDate ? new Date(dueDate) : null,
         creatorId: user.id,
-        assigneeId: assigneeId,
+        assigneeId: assigneeId && assigneeId.trim() !== '' ? assigneeId : null,
         parentId: workspace.name,
       },
     });
@@ -111,7 +139,7 @@ export const createTask = async (req, res) => {
     }
 
     // Create a notification for the assignee (if there is one)
-    if (assigneeId) {
+    if (assigneeId && assigneeId.trim() !== '') {
       try {
         await prisma.notification.create({
           data: {
@@ -128,7 +156,7 @@ export const createTask = async (req, res) => {
 
     res.status(201).json({ message: "Task created successfully", task });
   } catch (error) {
-    console.error(error);
+    console.error("Task creation error:", error);
     res.status(500).json({ error: "Failed to create task" });
   }
 };
