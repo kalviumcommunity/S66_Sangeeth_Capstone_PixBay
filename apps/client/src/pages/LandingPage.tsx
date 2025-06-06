@@ -68,11 +68,11 @@ const LandingPage = () => {
         // First ensure user exists
         const userResponse = await axios.get(
           api.getApiEndpoint(
-            `/api/users/check?email=${encodeURIComponent(email)}`
+            `/api/users/check?email=${encodeURIComponent(email)}`,
           ),
           {
             headers: { Authorization: `Bearer ${token}` },
-          }
+          },
         );
 
         console.log("User data response:", userResponse.data);
@@ -89,7 +89,7 @@ const LandingPage = () => {
             api.getApiEndpoint("/api/workspaces/user"),
             {
               headers: { Authorization: `Bearer ${token}` },
-            }
+            },
           );
           console.log("Workspaces response:", workspacesResponse.data);
           setWorkspaces(workspacesResponse.data);
@@ -122,7 +122,7 @@ const LandingPage = () => {
           },
           {
             headers: { Authorization: `Bearer ${token}` },
-          }
+          },
         );
 
         setUserName(userName);
@@ -133,7 +133,7 @@ const LandingPage = () => {
           api.getApiEndpoint("/api/workspaces/user"),
           {
             headers: { Authorization: `Bearer ${token}` },
-          }
+          },
         );
         setWorkspaces(workspacesResponse.data);
       } catch (error) {
@@ -172,7 +172,7 @@ const LandingPage = () => {
           headers: {
             Authorization: `Bearer ${token}`,
           },
-        }
+        },
       );
 
       console.log("Workspace created with name:", finalWorkspaceName);
@@ -208,7 +208,7 @@ const LandingPage = () => {
       await axios.post(
         api.getApiEndpoint("/api/workspaces/join"),
         { workspaceName: workspaceName },
-        { headers: { Authorization: `Bearer ${token}` } }
+        { headers: { Authorization: `Bearer ${token}` } },
       );
       console.log("joined WorkSpace:", workspaceName);
       navigate(`/workspace/${workspaceName}`);
@@ -220,25 +220,25 @@ const LandingPage = () => {
             navigate(`/workspace/${roomCode}`);
           } else {
             setAlertMessage(
-              "Invalid workspace code. Please check and try again."
+              "Invalid workspace code. Please check and try again.",
             );
             setShowAlert(true);
           }
         } else if (error.response?.status === 404) {
           setAlertMessage(
-            "Workspace not found. Please check the code and try again."
+            "Workspace not found. Please check the code and try again.",
           );
           setShowAlert(true);
         } else {
           setAlertMessage(
-            `Failed to join workspace: ${error.response?.data?.message || "Unknown error"}`
+            `Failed to join workspace: ${error.response?.data?.message || "Unknown error"}`,
           );
           setShowAlert(true);
           console.error("Error joining workspace:", error);
         }
       } else {
         setAlertMessage(
-          "An unexpected error occurred. Please try again later."
+          "An unexpected error occurred. Please try again later.",
         );
         setShowAlert(true);
         console.error("Error joining workspace:", error);

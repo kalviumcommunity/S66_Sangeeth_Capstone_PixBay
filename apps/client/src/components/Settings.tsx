@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import {
@@ -12,6 +13,7 @@ import {
   Moon,
   Sun,
   ChevronDown,
+  FileText,
 } from "lucide-react";
 import axios from "axios";
 import { useAuth, useUser } from "@clerk/clerk-react";
@@ -51,6 +53,13 @@ interface WorkspaceMemberResponse {
   userId?: string;
 }
 
+interface Project {
+  id: string;
+  name: string;
+  description: string | null;
+  workspaceId: string;
+}
+
 export function Settings({
   workspaceName,
   darkMode,
@@ -64,6 +73,8 @@ export function Settings({
   const [newMemberEmail, setNewMemberEmail] = useState("");
   const [workspace, setWorkspace] = useState({ name: workspaceName, id: "" });
   const [workspaces, setWorkspaces] = useState<Workspace[]>([]);
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   const { user } = useUser();
   const { getToken } = useAuth();
@@ -170,6 +181,42 @@ export function Settings({
 
     loadWorkspaceDetails();
   }, [workspaceName, getToken]);
+
+  // Load projects for the current workspace
+  useEffect(() => {
+    const fetchProjects = async () => {
+      if (!workspaceName) return;
+
+      try {
+        const token = await getToken();
+        const response = await axios.get(
+          api.getApiEndpoint(`/api/projects/workspace/${workspaceName}`),
+          { headers: { Authorization: `Bearer ${token}` } },
+        );
+
+        setProjects(response.data);
+      } catch (error) {
+        console.error("Error fetching projects:", error);
+      }
+    };
+
+    fetchProjects();
+  }, [workspaceName, getToken]);
+
+  // Check if current user is admin
+  useEffect(() => {
+    const checkAdminStatus = () => {
+      const currentUserMember = members.find(
+        (member) =>
+          member.user.email === user?.emailAddresses?.[0]?.emailAddress,
+      );
+      setIsAdmin(currentUserMember?.role === "ADMIN");
+    };
+
+    if (members.length > 0 && user) {
+      checkAdminStatus();
+    }
+  }, [members, user]);
 
   const handleWorkspaceSwitch = (workspaceName: string) => {
     navigate(`/workspace/${workspaceName}`);
@@ -330,6 +377,42 @@ export function Settings({
     }
   };
 
+  const handleDeleteProject = async (
+    projectId: string,
+    projectName: string,
+  ) => {
+    if (
+      !confirm(
+        `Are you sure you want to delete the project "${projectName}"? This action cannot be undone.`,
+      )
+    ) {
+      return;
+    }
+
+    setIsSaving(true);
+    try {
+      const token = await getToken();
+
+      await axios.delete(api.getApiEndpoint(`/api/projects/${projectId}`), {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      // Update projects list
+      setProjects(projects.filter((project) => project.id !== projectId));
+
+      setMessage({ type: "success", text: "Project deleted successfully" });
+      setTimeout(() => setMessage({ type: "", text: "" }), 3000);
+    } catch (error: any) {
+      console.error("Error deleting project:", error);
+      setMessage({
+        type: "error",
+        text: error.response?.data?.error || "Failed to delete project",
+      });
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
   if (isLoading) {
     return (
       <div
@@ -418,6 +501,11 @@ export function Settings({
                 id: "workspace",
                 label: "Workspace",
                 icon: <Briefcase className="mr-2 h-4 w-4" />,
+              },
+              {
+                id: "projects",
+                label: "Projects",
+                icon: <FileText className="mr-2 h-4 w-4" />,
               },
               {
                 id: "appearance",
@@ -707,6 +795,129 @@ export function Settings({
                     )}
                   </button>
                 </div>
+              </motion.div>
+            )}
+
+            {activeTab === "projects" && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.2 }}
+              >
+                <h2
+                  className={`mb-4 text-xl font-semibold ${darkMode ? "text-white" : "text-[#212121]"}`}
+                >
+                  Workspace Projects
+                </h2>
+
+                {projects.length > 0 ? (
+                  <div
+                    className={`mb-4 overflow-hidden rounded-lg border shadow-sm transition-all duration-200 ${
+                      darkMode
+                        ? "border-[#2C2C2C] bg-[#1C1C1C]/90"
+                        : "border-gray-200 bg-white"
+                    }`}
+                  >
+                    <table className="w-full">
+                      <thead
+                        className={`${
+                          darkMode
+                            ? "bg-[#171717] text-gray-300 border-b border-[#2C2C2C]"
+                            : "bg-gray-50 text-gray-700 border-b border-gray-200"
+                        }`}
+                      >
+                        <tr>
+                          <th className="px-4 py-3 text-left text-sm font-medium">
+                            Project Name
+                          </th>
+                          <th className="px-4 py-3 text-left text-sm font-medium">
+                            Description
+                          </th>
+                          {isAdmin && (
+                            <th className="px-4 py-3 text-right text-sm font-medium">
+                              Actions
+                            </th>
+                          )}
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-gray-200 dark:divide-[#2C2C2C]">
+                        {projects.map((project) => (
+                          <tr
+                            key={project.id}
+                            className={`transition-colors duration-150 ${
+                              darkMode
+                                ? "hover:bg-[#171717]"
+                                : "hover:bg-gray-50"
+                            }`}
+                          >
+                            <td
+                              className={`px-4 py-3 text-sm font-medium ${
+                                darkMode
+                                  ? "text-emerald-400"
+                                  : "text-emerald-600"
+                              }`}
+                            >
+                              {project.name}
+                            </td>
+                            <td
+                              className={`px-4 py-3 text-sm ${
+                                darkMode ? "text-gray-400" : "text-gray-600"
+                              }`}
+                            >
+                              {project.description || "No description"}
+                            </td>
+                            {isAdmin && (
+                              <td className="px-4 py-3 text-right">
+                                <button
+                                  onClick={() =>
+                                    handleDeleteProject(
+                                      project.id,
+                                      project.name,
+                                    )
+                                  }
+                                  className={`rounded-md p-1.5 transition-colors duration-200 ${
+                                    darkMode
+                                      ? "hover:bg-[#2C2C2C] text-red-400"
+                                      : "hover:bg-red-100 text-red-600"
+                                  }`}
+                                  title="Delete project"
+                                >
+                                  <Trash2 size={16} />
+                                </button>
+                              </td>
+                            )}
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                ) : (
+                  <div
+                    className={`rounded-lg p-6 mb-4 flex items-center justify-center transition-all duration-200 ${
+                      darkMode
+                        ? "bg-[#171717]/95 border border-[#2C2C2C]"
+                        : "bg-gray-100/95"
+                    }`}
+                  >
+                    <p
+                      className={`text-center ${
+                        darkMode ? "text-gray-400" : "text-gray-600"
+                      }`}
+                    >
+                      No projects found in this workspace
+                    </p>
+                  </div>
+                )}
+
+                <p
+                  className={`mt-4 text-sm ${
+                    darkMode ? "text-gray-400" : "text-gray-600"
+                  }`}
+                >
+                  {isAdmin
+                    ? "As an admin, you can delete any project in this workspace."
+                    : "Only workspace admins can delete projects."}
+                </p>
               </motion.div>
             )}
 

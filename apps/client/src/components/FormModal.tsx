@@ -1,10 +1,10 @@
-import { Fragment, useState } from "react";
-import { Dialog, Transition } from "@headlessui/react";
-import { XMarkIcon } from "@heroicons/react/24/outline";
+import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { X } from "lucide-react";
 import { useParams } from "react-router-dom";
 import axios from "axios";
 import { useAuth } from "@clerk/clerk-react";
-import { getApiEndpoint } from "../utils/api"; // Import the API utility function
+import { getApiEndpoint } from "../utils/api";
 
 interface FormModalProps {
   isOpen: boolean;
@@ -34,7 +34,7 @@ export function FormModal({
     try {
       const token = await getToken();
       const response = await axios.post(
-        getApiEndpoint("api/projects"), // Use API utility instead of hardcoded URL
+        getApiEndpoint("api/projects"),
         {
           name,
           description,
@@ -57,188 +57,170 @@ export function FormModal({
     }
   };
 
+  const backdropVariants = {
+    hidden: { opacity: 0 },
+    visible: { opacity: 1 },
+  };
+
+  const modalVariants = {
+    hidden: {
+      opacity: 0,
+      y: 20,
+      scale: 0.98,
+    },
+    visible: {
+      opacity: 1,
+      y: 0,
+      scale: 1,
+    },
+    exit: {
+      opacity: 0,
+      y: 10,
+      scale: 0.98,
+      transition: { duration: 0.15, ease: "easeOut" },
+    },
+  };
+
+  const inputStyles = `w-full px-3 py-2 rounded-md border focus:outline-none focus:ring-2 focus:ring-emerald-400 ${
+    darkMode
+      ? "bg-[#171717] border-[#2C2C2C] text-white"
+      : "bg-white border-gray-200 text-[#212121]"
+  }`;
+
   return (
-    <Transition appear show={isOpen} as={Fragment}>
-      <Dialog as="div" className="relative z-50" onClose={onClose}>
-        {/* Backdrop */}
-        <Transition.Child
-          as={Fragment}
-          enter="ease-out duration-300"
-          enterFrom="opacity-0"
-          enterTo="opacity-100"
-          leave="ease-in duration-200"
-          leaveFrom="opacity-100"
-          leaveTo="opacity-0"
+    <AnimatePresence mode="wait">
+      {isOpen && (
+        <motion.div
+          className="fixed inset-0 flex items-center justify-center z-50"
+          initial="hidden"
+          animate="visible"
+          exit="hidden"
+          variants={backdropVariants}
+          transition={{ duration: 0.2 }}
         >
           <div
-            className={`fixed inset-0 ${darkMode ? "bg-black/50" : "bg-black/25"}`}
-          />
-        </Transition.Child>
-
-        {/* Modal Content */}
-        <div className="fixed inset-0 overflow-y-auto">
-          <div className="flex min-h-full items-center justify-center p-4 text-center">
-            <Transition.Child
-              as={Fragment}
-              enter="ease-out duration-300"
-              enterFrom="opacity-0 scale-95"
-              enterTo="opacity-100 scale-100"
-              leave="ease-in duration-200"
-              leaveFrom="opacity-100 scale-100"
-              leaveTo="opacity-0 scale-95"
-            >
-              <Dialog.Panel
-                className={`w-full max-w-md transform overflow-hidden rounded-lg p-6 shadow-xl transition-all relative ${
-                  darkMode ? "bg-[#1C1C1C]" : "bg-white"
-                }`}
-              >
-                <Dialog.Title
-                  as="h3"
-                  className={`text-lg font-medium leading-6 ${
+            className="absolute inset-0 backdrop-blur-md bg-black/30"
+            onClick={onClose}
+          ></div>
+          <motion.div
+            className={`relative w-full max-w-md transform ${
+              darkMode
+                ? "bg-[#171717]/95 border border-[#2C2C2C]"
+                : "bg-gray-100/95"
+            } rounded-lg shadow-xl backdrop-blur-sm`}
+            variants={modalVariants}
+            initial="hidden"
+            animate="visible"
+            exit="exit"
+            transition={{
+              type: "spring",
+              damping: 25,
+              stiffness: 300,
+              delay: 0.05,
+            }}
+          >
+            <div className="p-8">
+              <div className="flex justify-between items-center mb-6">
+                <h2
+                  className={`text-2xl font-bold ${
                     darkMode ? "text-white" : "text-[#212121]"
                   }`}
                 >
                   Create New Project
-                </Dialog.Title>
-
-                {/* Close Button */}
+                </h2>
                 <button
-                  type="button"
-                  className={`absolute top-3 right-3 ${
-                    darkMode
-                      ? "text-gray-400 hover:text-gray-300"
-                      : "text-gray-500 hover:text-gray-700"
-                  }`}
                   onClick={onClose}
+                  className={`p-2 rounded-full hover:bg-opacity-80 ${
+                    darkMode
+                      ? "text-gray-400 hover:bg-[#2C2C2C]"
+                      : "text-gray-600 hover:bg-gray-200"
+                  }`}
                 >
-                  <XMarkIcon className="h-6 w-6" />
+                  <X size={20} />
                 </button>
+              </div>
 
-                <form onSubmit={handleSubmit} className="mt-4">
-                  <div className="space-y-4">
-                    <div>
-                      <label
-                        htmlFor="name"
-                        className={`block text-sm font-medium mb-1.5 ${
-                          darkMode ? "text-gray-300" : "text-gray-700"
-                        }`}
-                      >
-                        Name
-                      </label>
-                      <div className="relative">
-                        <input
-                          type="text"
-                          id="name"
-                          value={name}
-                          onChange={(e) => setName(e.target.value)}
-                          className={`mt-1 block w-full px-4 py-2.5 rounded-lg border-2 shadow-sm 
-                          transition-all duration-200 ease-in-out
-                          ${
-                            darkMode
-                              ? "bg-[#2C2C2C] border-[#333] text-white placeholder-gray-500 focus:bg-[#2C2C2C]/90"
-                              : "bg-white border-gray-200 text-[#212121] placeholder-gray-400"
-                          }
-                          focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500
-                          hover:border-emerald-500/50
-                          ${isLoading ? "opacity-50 cursor-not-allowed" : ""}
-                          disabled:bg-opacity-70 disabled:cursor-not-allowed`}
-                          required
-                          disabled={isLoading}
-                          placeholder="Enter project name"
-                        />
-                      </div>
-                    </div>
+              <form onSubmit={handleSubmit} className="space-y-6">
+                <div>
+                  <label
+                    className={`block mb-2 font-medium ${
+                      darkMode ? "text-gray-300" : "text-gray-700"
+                    }`}
+                  >
+                    Name <span className="text-emerald-400">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    className={inputStyles}
+                    placeholder="Enter project name"
+                    required
+                    disabled={isLoading}
+                  />
+                </div>
 
-                    <div>
-                      <label
-                        htmlFor="description"
-                        className={`block text-sm font-medium mb-1.5 ${
-                          darkMode ? "text-gray-300" : "text-gray-700"
-                        }`}
-                      >
-                        Description
-                      </label>
-                      <div className="relative">
-                        <textarea
-                          id="description"
-                          value={description}
-                          onChange={(e) => setDescription(e.target.value)}
-                          rows={3}
-                          className={`mt-1 block w-full px-4 py-2.5 rounded-lg border-2 shadow-sm 
-                          transition-all duration-200 ease-in-out
-                          ${
-                            darkMode
-                              ? "bg-[#2C2C2C] border-[#333] text-white placeholder-gray-500 focus:bg-[#2C2C2C]/90"
-                              : "bg-white border-gray-200 text-[#212121] placeholder-gray-400"
-                          }
-                          focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500
-                          hover:border-emerald-500/50
-                          ${isLoading ? "opacity-50 cursor-not-allowed" : ""}
-                          disabled:bg-opacity-70 disabled:cursor-not-allowed
-                          resize-none`}
-                          required
-                          disabled={isLoading}
-                          placeholder="Enter project description"
-                        />
-                      </div>
-                    </div>
-                  </div>
+                <div>
+                  <label
+                    className={`block mb-2 font-medium ${
+                      darkMode ? "text-gray-300" : "text-gray-700"
+                    }`}
+                  >
+                    Description <span className="text-emerald-400">*</span>
+                  </label>
+                  <textarea
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
+                    className={inputStyles}
+                    placeholder="Enter project description"
+                    rows={3}
+                    required
+                    disabled={isLoading}
+                  />
+                </div>
 
-                  <div className="mt-6 flex justify-end space-x-3">
-                    <button
-                      type="button"
-                      onClick={onClose}
-                      className={`px-4 py-2 text-sm font-medium rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 transition duration-150 ease-in-out ${
-                        darkMode
-                          ? "text-white bg-[#2C2C2C] hover:bg-[#333] border-[#333]"
-                          : "text-gray-700 bg-white hover:bg-gray-100 border-gray-300"
-                      } border ${isLoading ? "opacity-50 cursor-not-allowed" : ""}`}
-                      disabled={isLoading}
-                    >
-                      Cancel
-                    </button>
-                    <button
-                      type="submit"
-                      disabled={isLoading}
-                      className={`px-4 py-2 text-sm font-medium text-white bg-emerald-500 border border-transparent rounded-md shadow-sm hover:bg-emerald-600 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition duration-150 ease-in-out flex items-center ${
-                        isLoading ? "opacity-75 cursor-not-allowed" : ""
-                      }`}
-                    >
-                      {isLoading ? (
-                        <>
-                          <svg
-                            className="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
-                            xmlns="http://www.w3.org/2000/svg"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                          >
-                            <circle
-                              className="opacity-25"
-                              cx="12"
-                              cy="12"
-                              r="10"
-                              stroke="currentColor"
-                              strokeWidth="4"
-                            ></circle>
-                            <path
-                              className="opacity-75"
-                              fill="currentColor"
-                              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                            ></path>
-                          </svg>
-                          Creating...
-                        </>
-                      ) : (
-                        "Create Project"
-                      )}
-                    </button>
-                  </div>
-                </form>
-              </Dialog.Panel>
-            </Transition.Child>
-          </div>
-        </div>
-      </Dialog>
-    </Transition>
+                <button
+                  type="submit"
+                  disabled={isLoading}
+                  className="w-full py-3 px-4 rounded-lg bg-emerald-400 hover:bg-emerald-500 text-white font-medium transition-colors duration-200 flex items-center justify-center relative overflow-hidden"
+                >
+                  {isLoading ? (
+                    <>
+                      <span className="absolute inset-0 flex items-center justify-center">
+                        <svg
+                          className="animate-spin h-5 w-5 mr-2"
+                          viewBox="0 0 24 24"
+                        >
+                          <circle
+                            className="opacity-25"
+                            cx="12"
+                            cy="12"
+                            r="10"
+                            stroke="currentColor"
+                            strokeWidth="4"
+                          ></circle>
+                          <path
+                            className="opacity-75"
+                            fill="currentColor"
+                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                          ></path>
+                        </svg>
+                        <span className="ml-1">Creating...</span>
+                      </span>
+                      <span className="opacity-0">Create Project</span>
+                    </>
+                  ) : (
+                    "Create Project"
+                  )}
+                  {isLoading && (
+                    <span className="absolute inset-0 bg-gradient-to-r from-emerald-700/40 to-emerald-600/40 animate-pulse rounded-lg"></span>
+                  )}
+                </button>
+              </form>
+            </div>
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>
   );
 }

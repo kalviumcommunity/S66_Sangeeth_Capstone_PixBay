@@ -1,6 +1,8 @@
 # PixBay
+
 [Client](https://www.pixbay.space/)
 [Server](pixbay-gb4u.onrender.com)
+
 ## Project Name: PixBay
 
 ### What It Is
@@ -78,37 +80,3 @@ Inspired by tools like Notion, Atlassian(jira), and Kanban boards, PixBay is tai
 - Turborepo
 
 ---
-
-## Daily Plan with Timelines
-
-Given the expanded scope, the original 2-3 week sprint has been revised to a 6-week timeline, assuming ~3-4 hours/day.
-
-### **Weeks 1-2: Foundation & Core Features**
-
-- Set up the monorepo with Turborepo, initialize frontend (React, TypeScript) and backend (Node.js, Express).
-- Implement authentication using Clerk.
-- Configure the database with PostgreSQL and Prisma.
-- Develop the room system with unique codes for project spaces.
-- Integrate basic video calls using WebRTC and PeerJS.
-- Add the interactive whiteboard with Fabric.js and real-time sync via Socket.IO.
-- Implement real-time chat within rooms.
-
-### **Weeks 3-4: Expanded Features**
-
-- Build project management tools: Kanban boards, task assignments, and deadlines.
-- Develop the documentation system with a Notion-like editor supporting rich text and real-time collaboration.
-- Add calendar integration for scheduling and deadline tracking.
-- Implement member management and an inbox for notifications.
-- Create a customizable dashboard with widgets for tasks, projects, and team activity.
-
----
-
-## Why PixBay?
-
-PixBay Workspace builds on the original idea of real-time collaboration (video, whiteboard, chat) and elevates it into a comprehensive platform. It draws inspiration from Notion’s documentation, Atlassian’s project management, and Kanban-style workflows, while adding unique elements like:
-
-- A virtual office space for an immersive team experience.
-- AI-powered tools to boost productivity.
-- Gamification to keep teams engaged.
-
-It’s designed for small to medium-sized teams who need an all-in-one solution for remote or distributed work, eliminating the need to juggle multiple tools.

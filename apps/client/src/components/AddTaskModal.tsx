@@ -89,7 +89,7 @@ const AddTaskModal: React.FC<AddTaskModalProps> = ({
       let actualUserId = assigneeId;
       if (assigneeId) {
         const selectedAssignee = workspaceMembers.find(
-          (m) => m.id === assigneeId
+          (m) => m.id === assigneeId,
         );
         if (selectedAssignee && selectedAssignee.userId) {
           actualUserId = selectedAssignee.userId;

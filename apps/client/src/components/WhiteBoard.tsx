@@ -157,8 +157,8 @@ const WhiteBoard: React.FC<WhiteBoardProps> = ({ roomCode, userId }) => {
       Math.min(
         1,
         1 -
-          Math.pow(lastVelocity.current * SMOOTHING_CONFIG.velocityWeight, 0.7)
-      )
+          Math.pow(lastVelocity.current * SMOOTHING_CONFIG.velocityWeight, 0.7),
+      ),
     );
 
     return pressureFromVelocity;
@@ -203,7 +203,7 @@ const WhiteBoard: React.FC<WhiteBoardProps> = ({ roomCode, userId }) => {
         reconnectAttempts++;
         if (reconnectAttempts >= maxReconnectAttempts && isMountedRef.current) {
           setError(
-            `Connection failed after ${maxReconnectAttempts} attempts: ${err.message}. Please refresh.`
+            `Connection failed after ${maxReconnectAttempts} attempts: ${err.message}. Please refresh.`,
           );
         }
       };
@@ -296,7 +296,7 @@ const WhiteBoard: React.FC<WhiteBoardProps> = ({ roomCode, userId }) => {
           canvasRef.current.height = container.clientHeight;
 
           console.log(
-            `Canvas resized from ${prevWidth}x${prevHeight} to ${canvasRef.current.width}x${canvasRef.current.height}`
+            `Canvas resized from ${prevWidth}x${prevHeight} to ${canvasRef.current.width}x${canvasRef.current.height}`,
           );
           console.log(`Redrawing ${actionsRef.current.length} actions`);
 
@@ -404,7 +404,7 @@ const WhiteBoard: React.FC<WhiteBoardProps> = ({ roomCode, userId }) => {
               action.points[secondLast].x,
               action.points[secondLast].y,
               action.points[last].x,
-              action.points[last].y
+              action.points[last].y,
             );
             ctx.stroke();
           }
@@ -488,7 +488,7 @@ const WhiteBoard: React.FC<WhiteBoardProps> = ({ roomCode, userId }) => {
             action.points[secondLast].x,
             action.points[secondLast].y,
             action.points[last].x,
-            action.points[last].y
+            action.points[last].y,
           );
           ctx.stroke();
         }
@@ -633,7 +633,7 @@ const WhiteBoard: React.FC<WhiteBoardProps> = ({ roomCode, userId }) => {
           smoothed[secondLast].x,
           smoothed[secondLast].y,
           smoothed[last].x,
-          smoothed[last].y
+          smoothed[last].y,
         );
         ctx.stroke();
       }
@@ -658,7 +658,7 @@ const WhiteBoard: React.FC<WhiteBoardProps> = ({ roomCode, userId }) => {
     if (!batchTimerRef.current) {
       batchTimerRef.current = setTimeout(
         flushActionBatch,
-        BATCH_CONFIG.interval
+        BATCH_CONFIG.interval,
       );
     }
 
@@ -840,7 +840,7 @@ const WhiteBoard: React.FC<WhiteBoardProps> = ({ roomCode, userId }) => {
           smoothed[secondLast].x,
           smoothed[secondLast].y,
           smoothed[last].x,
-          smoothed[last].y
+          smoothed[last].y,
         );
         ctx.stroke();
       }
@@ -865,7 +865,7 @@ const WhiteBoard: React.FC<WhiteBoardProps> = ({ roomCode, userId }) => {
     if (!batchTimerRef.current) {
       batchTimerRef.current = setTimeout(
         flushActionBatch,
-        BATCH_CONFIG.interval
+        BATCH_CONFIG.interval,
       );
     }
 

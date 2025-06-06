@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
-import { Dialog } from "@headlessui/react";
 import axios from "axios";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
+import { X } from "lucide-react";
 import { getApiEndpoint } from "../utils/api";
 
 export enum TaskStatus {
@@ -165,97 +165,125 @@ const CalenderTaskModal: React.FC<CalenderTaskModalProps> = ({
       : "bg-white border-gray-200 text-[#212121]"
   }`;
 
-  const inputClasses = `block w-full rounded-md border ${
-    darkMode
-      ? "bg-[#2C2C2C] border-gray-700 text-white"
-      : "bg-white border-gray-300 text-gray-900"
-  } shadow-sm focus:border-blue-500 focus:ring-blue-500 px-3 py-2`;
+  const backdropVariants = {
+    hidden: { opacity: 0 },
+    visible: { opacity: 1 },
+  };
+
+  const modalVariants = {
+    hidden: {
+      opacity: 0,
+      y: 20,
+      scale: 0.98,
+    },
+    visible: {
+      opacity: 1,
+      y: 0,
+      scale: 1,
+    },
+    exit: {
+      opacity: 0,
+      y: 10,
+      scale: 0.98,
+      transition: { duration: 0.15, ease: "easeOut" },
+    },
+  };
 
   return (
-    <Dialog open={isOpen} onClose={onClose} className="relative z-50">
-      <div
-        className="fixed inset-0 bg-black/30 backdrop-blur-sm"
-        aria-hidden="true"
-      />
-
-      <div className="fixed inset-0 overflow-y-auto">
-        <div className="flex min-h-full items-center justify-center p-4">
+    <AnimatePresence mode="wait">
+      {isOpen && (
+        <motion.div
+          className="fixed inset-0 flex items-center justify-center z-50"
+          initial="hidden"
+          animate="visible"
+          exit="hidden"
+          variants={backdropVariants}
+          transition={{ duration: 0.2 }}
+        >
+          <div
+            className="absolute inset-0 backdrop-blur-md bg-black/30"
+            onClick={onClose}
+          ></div>
           <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.95 }}
-            transition={{ duration: 0.2 }}
-            className={`w-full max-w-md rounded-xl p-6 shadow-xl ${
-              darkMode ? "bg-[#1C1C1C] text-white" : "bg-white text-gray-900"
-            }`}
+            className={`relative w-full max-w-md transform ${
+              darkMode
+                ? "bg-[#171717]/95 border border-[#2C2C2C]"
+                : "bg-gray-100/95"
+            } rounded-lg shadow-xl backdrop-blur-sm`}
+            variants={modalVariants}
+            initial="hidden"
+            animate="visible"
+            exit="exit"
+            transition={{
+              type: "spring",
+              damping: 25,
+              stiffness: 300,
+              delay: 0.05,
+            }}
           >
-            <Dialog.Title className="text-xl font-semibold mb-4">
-              Create New Task
-            </Dialog.Title>
-
-            {error && (
-              <div className="mb-4 rounded-md bg-red-500/20 p-3 text-red-500">
-                {error}
-              </div>
-            )}
-
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div>
-                <label
-                  htmlFor="title"
-                  className="block mb-1 text-sm font-medium"
+            <div className="p-8">
+              <div className="flex justify-between items-center mb-6">
+                <h2
+                  className={`text-2xl font-bold ${
+                    darkMode ? "text-white" : "text-[#212121]"
+                  }`}
                 >
-                  Title *
-                </label>
-                <input
-                  id="title"
-                  type="text"
-                  value={title}
-                  onChange={(e) => setTitle(e.target.value)}
-                  required
-                  className={inputClasses}
-                  placeholder="Task title"
-                />
-              </div>
-
-              <div>
-                <label
-                  htmlFor="description"
-                  className="block mb-1 text-sm font-medium"
+                  Create New Task
+                </h2>
+                <button
+                  onClick={onClose}
+                  className={`p-2 rounded-full hover:bg-opacity-80 ${
+                    darkMode
+                      ? "text-gray-400 hover:bg-[#2C2C2C]"
+                      : "text-gray-600 hover:bg-gray-200"
+                  }`}
                 >
-                  Description
-                </label>
-                <textarea
-                  id="description"
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                  rows={3}
-                  className={inputClasses}
-                  placeholder="Task description"
-                />
+                  <X size={20} />
+                </button>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              {error && (
+                <div className="mb-4 rounded-md bg-red-500/20 p-3 text-red-500">
+                  {error}
+                </div>
+              )}
+
+              <form onSubmit={handleSubmit} className="space-y-6">
                 <div>
                   <label
-                    htmlFor="type"
-                    className="block mb-1 text-sm font-medium"
+                    className={`block mb-2 font-medium ${
+                      darkMode ? "text-gray-300" : "text-gray-700"
+                    }`}
                   >
-                    Type
+                    Title <span className="text-emerald-400">*</span>
                   </label>
-                  <select
-                    id="type"
-                    value={taskType}
-                    onChange={(e) => setTaskType(e.target.value as TaskType)}
-                    className={inputClasses}
-                  >
-                    {Object.values(TaskType).map((type) => (
-                      <option key={type} value={type}>
-                        {type}
-                      </option>
-                    ))}
-                  </select>
+                  <input
+                    type="text"
+                    value={title}
+                    onChange={(e) => setTitle(e.target.value)}
+                    className={inputStyles}
+                    placeholder="Task title"
+                    required
+                  />
                 </div>
+
+                <div>
+                  <label
+                    className={`block mb-2 font-medium ${
+                      darkMode ? "text-gray-300" : "text-gray-700"
+                    }`}
+                  >
+                    Description
+                  </label>
+                  <textarea
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
+                    className={inputStyles}
+                    placeholder="Task description"
+                    rows={3}
+                  />
+                </div>
+
                 <div>
                   <label
                     className={`block mb-2 font-medium ${
@@ -282,57 +310,108 @@ const CalenderTaskModal: React.FC<CalenderTaskModalProps> = ({
                   </select>
                 </div>
 
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label
+                      className={`block mb-2 font-medium ${
+                        darkMode ? "text-gray-300" : "text-gray-700"
+                      }`}
+                    >
+                      Type
+                    </label>
+                    <select
+                      value={taskType}
+                      onChange={(e) => setTaskType(e.target.value as TaskType)}
+                      className={inputStyles}
+                    >
+                      {Object.values(TaskType).map((type) => (
+                        <option key={type} value={type}>
+                          {type}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label
+                      className={`block mb-2 font-medium ${
+                        darkMode ? "text-gray-300" : "text-gray-700"
+                      }`}
+                    >
+                      Priority
+                    </label>
+                    <select
+                      value={priority}
+                      onChange={(e) => setPriority(e.target.value as Priority)}
+                      className={inputStyles}
+                    >
+                      {Object.values(Priority).map((p) => (
+                        <option key={p} value={p}>
+                          {p}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+
                 <div>
                   <label
-                    htmlFor="priority"
-                    className="block mb-1 text-sm font-medium"
+                    className={`block mb-2 font-medium ${
+                      darkMode ? "text-gray-300" : "text-gray-700"
+                    }`}
                   >
-                    Priority
+                    Due Date
                   </label>
-                  <select
-                    id="priority"
-                    value={priority}
-                    onChange={(e) => setPriority(e.target.value as Priority)}
-                    className={inputClasses}
-                  >
-                    {Object.values(Priority).map((p) => (
-                      <option key={p} value={p}>
-                        {p}
-                      </option>
-                    ))}
-                  </select>
+                  <input
+                    type="date"
+                    value={dueDate}
+                    onChange={(e) => setDueDate(e.target.value)}
+                    className={inputStyles}
+                  />
                 </div>
-              </div>
-              <div className="flex justify-end space-x-3 pt-4">
-                <button
-                  type="button"
-                  onClick={onClose}
-                  className={`rounded-md px-4 py-2 text-sm font-medium ${
-                    darkMode
-                      ? "bg-gray-700 text-gray-200 hover:bg-gray-600"
-                      : "bg-gray-200 text-gray-800 hover:bg-gray-300"
-                  }`}
-                  disabled={isLoading}
-                >
-                  Cancel
-                </button>
+
                 <button
                   type="submit"
                   disabled={isLoading}
-                  className={`rounded-md px-4 py-2 text-sm font-medium ${
-                    darkMode
-                      ? "bg-blue-600 text-white hover:bg-blue-700"
-                      : "bg-blue-500 text-white hover:bg-blue-600"
-                  } ${isLoading ? "opacity-70 cursor-not-allowed" : ""}`}
+                  className="w-full py-3 px-4 rounded-lg bg-emerald-400 hover:bg-emerald-500 text-white font-medium transition-colors duration-200 flex items-center justify-center relative overflow-hidden"
                 >
-                  {isLoading ? "Creating..." : "Create Task"}
+                  {isLoading ? (
+                    <>
+                      <span className="absolute inset-0 flex items-center justify-center">
+                        <svg
+                          className="animate-spin h-5 w-5 mr-2"
+                          viewBox="0 0 24 24"
+                        >
+                          <circle
+                            className="opacity-25"
+                            cx="12"
+                            cy="12"
+                            r="10"
+                            stroke="currentColor"
+                            strokeWidth="4"
+                          ></circle>
+                          <path
+                            className="opacity-75"
+                            fill="currentColor"
+                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                          ></path>
+                        </svg>
+                        <span className="ml-1">Creating...</span>
+                      </span>
+                      <span className="opacity-0">Create Task</span>
+                    </>
+                  ) : (
+                    "Create Task"
+                  )}
+                  {isLoading && (
+                    <span className="absolute inset-0 bg-gradient-to-r from-emerald-700/40 to-emerald-600/40 animate-pulse rounded-lg"></span>
+                  )}
                 </button>
-              </div>
-            </form>
+              </form>
+            </div>
           </motion.div>
-        </div>
-      </div>
-    </Dialog>
+        </motion.div>
+      )}
+    </AnimatePresence>
   );
 };
 

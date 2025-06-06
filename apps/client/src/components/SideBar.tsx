@@ -404,16 +404,15 @@ export function Sidebar({
                           </motion.button>
                         ))}
                         {!isProjectModalOpen && (
-                          <motion.div
+                          <motion.button
                             className={`w-full rounded-md px-3 py-2 text-left text-sm text-emerald-500 flex items-center gap-2 ${darkMode ? "hover:bg-[#2C2C2C]" : "hover:bg-gray-100"}`}
                             variants={subItemVariants}
                             whileTap={{ scale: 0.95 }}
+                            onClick={openProjectModal}
                           >
                             <Plus size={16} />
-                            <button onClick={openProjectModal}>
-                              Add Project
-                            </button>
-                          </motion.div>
+                            <span>Add Project</span>
+                          </motion.button>
                         )}
                       </>
                     )}

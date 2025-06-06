@@ -171,3 +171,69 @@ export const getProjectInfo = async(req, res) => {
     res.status(500).json({ error: 'Failed to fetch project information' });
   }
 };
+
+export const deleteProject = async (req, res) => {
+  try {
+    const { projectId } = req.params;
+    const { emailAddresses } = req.auth;
+    const email = emailAddresses?.[0]?.emailAddress;
+    
+    if (!projectId) {
+      return res.status(400).json({ error: 'Project ID is required' });
+    }
+    
+    // Find the project
+    const project = await prisma.project.findUnique({
+      where: { id: projectId },
+      include: {
+        workspace: true
+      }
+    });
+    
+    if (!project) {
+      return res.status(404).json({ error: 'Project not found' });
+    }
+    
+    // Find the user
+    const user = await prisma.user.findFirst({
+      where: { email: email }
+    });
+    
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+    
+    // Check if user is a workspace member and has admin role
+    const workspaceMember = await prisma.workspaceMember.findUnique({
+      where: { 
+        workspaceId_userId: { 
+          workspaceId: project.workspaceId, 
+          userId: user.id 
+        } 
+      }
+    });
+    
+    if (!workspaceMember) {
+      return res.status(403).json({ error: 'User is not a member of this workspace' });
+    }
+    
+    if (workspaceMember.role !== 'ADMIN') {
+      return res.status(403).json({ error: 'Only workspace admins can delete projects' });
+    }
+    
+    // Delete related tasks first (due to foreign key constraints)
+    await prisma.task.deleteMany({
+      where: { projectId }
+    });
+    
+    // Delete the project
+    await prisma.project.delete({
+      where: { id: projectId }
+    });
+    
+    res.status(200).json({ message: 'Project deleted successfully' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Failed to delete project' });
+  }
+};
