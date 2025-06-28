@@ -23,12 +23,12 @@ import redisClient, { checkRedisHealthAndReconnect } from "./utils/redis.js";
 import { redisHealthMiddleware } from "./middleware/redisHealth.js";
 
 // Log environment variables for debugging (only non-sensitive ones)
-console.log("Environment:", {
-  NODE_ENV: process.env.NODE_ENV,
-  PORT: process.env.PORT,
-  FRONTEND_URL: process.env.FRONTEND_URL,
-  DATABASE_URL: process.env.DATABASE_URL ? "✓ SET" : "✗ MISSING",
-});
+// console.log("Environment:", {
+//   NODE_ENV: process.env.NODE_ENV,
+//   PORT: process.env.PORT,
+//   FRONTEND_URL: process.env.FRONTEND_URL,
+//   DATABASE_URL: process.env.DATABASE_URL ? "✓ SET" : "✗ MISSING",
+// });
 
 // Set FRONTEND_URL based on NODE_ENV
 const FRONTEND_URL =
@@ -73,19 +73,19 @@ const io = new Server(server, {
   },
 });
 
-console.log("Socket.IO server initialized");
+// console.log("Socket.IO server initialized");
 io.on("connection", (socket) => {
-  console.log(
-    "Socket.IO connection:",
-    socket.id,
-    "Transport:",
-    socket.conn.transport.name
-  );
+  // console.log(
+  //   "Socket.IO connection:",
+  //   socket.id,
+  //   "Transport:",
+  //   socket.conn.transport.name
+  // );
 });
 
 // Add WebSocket upgrade handler
 server.on("upgrade", (request, socket, head) => {
-  console.log("Upgrade request received for:", request.url);
+  // console.log("Upgrade request received for:", request.url);
 });
 
 roomSockets(io);
@@ -121,7 +121,7 @@ async function startServer() {
     // Check Redis health but don't block server startup if Redis is unavailable
     try {
       const isRedisConnected = await checkRedisHealthAndReconnect();
-      console.log(`Redis connection status: ${isRedisConnected ? 'Connected' : 'Disconnected'}`);
+      // console.log(`Redis connection status: ${isRedisConnected ? 'Connected' : 'Disconnected'}`);
       if (!isRedisConnected) {
         console.warn('Server starting without Redis connection. Caching functionality will degrade gracefully.');
       }
@@ -130,7 +130,7 @@ async function startServer() {
     }
 
     server.listen(PORT, () => {
-      console.log(`Server is running on port ${PORT}`);
+      // console.log(`Server is running on port ${PORT}`);
     });
   } catch (err) {
     console.error("Failed to start server:", err);

@@ -31,18 +31,18 @@ const ChatRoom: React.FC<ChatRoomProps> = ({
     setSocket(newSocket);
 
     newSocket.on("connect", () => {
-      console.log("ChatRoom connected:", newSocket.id);
+      // console.log("ChatRoom connected:", newSocket.id);
       newSocket.emit("join-room", roomCode, "chat-only");
     });
 
     newSocket.on("previous-messages", (prevMsgs) => {
-      console.log("Previous messages received:", prevMsgs);
+      // console.log("Previous messages received:", prevMsgs);
       setMessages(prevMsgs);
     });
 
     newSocket.on("receive-message", (message) => {
-      console.log("New message received:", message);
-      setMessages((prev) => [...prev, message]);
+      // console.log("New message received:", message);
+      // setMessages((prev) => [...prev, message]);
     });
 
     return () => {

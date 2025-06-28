@@ -92,7 +92,7 @@ const KanbanBoard: React.FC<KanbanBoardProps> = ({
           headers: { Authorization: `Bearer ${token}` },
         },
       );
-      console.log("API response for tasks:", response.data); // Debug log
+      // console.log("API response for tasks:", response.data); // Debug log
       if (response.data && Array.isArray(response.data)) {
         setTasks(response.data);
       } else {
@@ -177,7 +177,7 @@ const KanbanBoard: React.FC<KanbanBoardProps> = ({
     );
   };
 
-  console.log("Tasks before rendering Board:", tasks); // Debug log
+  // console.log("Tasks before rendering Board:", tasks); // Debug log
 
   return (
     <div

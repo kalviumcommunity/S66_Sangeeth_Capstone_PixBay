@@ -61,10 +61,10 @@ export function useUserWorkspaces() {
     queryFn: async () => {
       try {
         const token = await getToken();
-        console.log(
-          "Making workspaces API request with token:",
-          token ? "Token exists" : "No token",
-        );
+        // console.log(
+        //   "Making workspaces API request with token:",
+        //   token ? "Token exists" : "No token",
+        // );
 
         const response = await axios.get(
           api.getApiEndpoint("/api/workspaces/user"),
@@ -75,21 +75,21 @@ export function useUserWorkspaces() {
 
         debugInfo.current.lastResponse = response.data;
 
-        console.log("Workspaces API response:", {
-          data: response.data,
-          isArray: Array.isArray(response.data),
-          type: typeof response.data,
-          keys: response.data ? Object.keys(response.data) : [],
-          status: response.status,
-        });
+        // console.log("Workspaces API response:", {
+        //   data: response.data,
+        //   isArray: Array.isArray(response.data),
+        //   type: typeof response.data,
+        //   keys: response.data ? Object.keys(response.data) : [],
+        //   status: response.status,
+        // });
 
         if (Array.isArray(response.data)) {
-          console.log("Returning direct array from API");
+          // console.log("Returning direct array from API");
           return response.data;
         }
 
         if (!response.data) {
-          console.log("No data in response, returning empty array");
+          // console.log("No data in response, returning empty array");
           return [];
         }
 
@@ -99,7 +99,7 @@ export function useUserWorkspaces() {
           for (const prop of possibleArrayProps) {
             const value = (response.data as Record<string, unknown>)[prop];
             if (Array.isArray(value)) {
-              console.log(`Found array in response.data.${prop}`);
+              // console.log(`Found array in response.data.${prop}`);
               return value;
             }
           }
@@ -107,7 +107,7 @@ export function useUserWorkspaces() {
           for (const key of Object.keys(response.data)) {
             const value = (response.data as Record<string, unknown>)[key];
             if (Array.isArray(value)) {
-              console.log(`Found array in response.data.${key}`);
+              // console.log(`Found array in response.data.${key}`);
               return value;
             }
           }

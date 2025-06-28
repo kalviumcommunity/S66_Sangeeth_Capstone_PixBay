@@ -36,7 +36,7 @@ function DashBoard() {
       // First, load the selected item so it takes precedence
       const storageKey = `workspace-${workspaceCode}-selectedItem`;
       const savedItem = localStorage.getItem(storageKey);
-      console.log("Loading from localStorage:", storageKey, savedItem);
+      // console.log("Loading from localStorage:", storageKey, savedItem);
 
       if (savedItem) {
         setSelectedItem(savedItem);
@@ -62,7 +62,7 @@ function DashBoard() {
   useEffect(() => {
     if (workspaceCode && selectedItem) {
       const storageKey = `workspace-${workspaceCode}-selectedItem`;
-      console.log("Saving to localStorage:", storageKey, selectedItem);
+      // console.log("Saving to localStorage:", storageKey, selectedItem);
       localStorage.setItem(storageKey, selectedItem);
     }
   }, [workspaceCode, selectedItem]);
@@ -76,7 +76,7 @@ function DashBoard() {
   };
 
   const handleItemSelect = (itemKey: string) => {
-    console.log("Selecting item:", itemKey);
+    // console.log("Selecting item:", itemKey);
     setSelectedItem(itemKey);
   };
 

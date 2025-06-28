@@ -97,12 +97,12 @@ export function Settings({
           { headers: { Authorization: `Bearer ${token}` } },
         );
 
-        console.log("User check response:", response.data);
+        // console.log("User check response:", response.data);
 
         if (response.data.exists) {
           setProfileName(response.data.name || "");
           if (response.data.id) {
-            console.log("User ID set to:", response.data.id);
+            // console.log("User ID set to:", response.data.id);
           } else {
             console.warn("User exists but ID not found in response");
           }
@@ -148,7 +148,7 @@ export function Settings({
           { headers: { Authorization: `Bearer ${token}` } },
         );
 
-        console.log("Workspace details:", workspaceRes.data);
+        // console.log("Workspace details:", workspaceRes.data);
 
         setWorkspace({
           id: workspaceRes.data.id,
@@ -169,7 +169,7 @@ export function Settings({
           }),
         );
 
-        console.log("Formatted members:", formattedMembers);
+        // console.log("Formatted members:", formattedMembers);
         setMembers(formattedMembers);
       } catch (error) {
         console.error("Error loading workspace details:", error);
@@ -237,7 +237,7 @@ export function Settings({
         throw new Error("User email not found");
       }
 
-      console.log("Updating user by email:", email);
+      // console.log("Updating user by email:", email);
 
       const response = await axios.put(
         api.getApiEndpoint(`/api/users/email/${encodeURIComponent(email)}`),
@@ -245,10 +245,10 @@ export function Settings({
         { headers: { Authorization: `Bearer ${token}` } },
       );
 
-      console.log("Update response:", response.data);
+      // console.log("Update response:", response.data);
 
       if (response.data.user && response.data.user.id) {
-        console.log("User ID set to:", response.data.user.id);
+        // console.log("User ID set to:", response.data.user.id);
       }
 
       setMessage({ type: "success", text: "Profile updated successfully" });
@@ -300,7 +300,7 @@ export function Settings({
 
     setIsSaving(true);
     try {
-      console.log("Attempting to remove member with ID:", memberId);
+      // console.log("Attempting to remove member with ID:", memberId);
       const token = await getToken();
 
       const response = await axios.delete(
@@ -308,7 +308,7 @@ export function Settings({
         { headers: { Authorization: `Bearer ${token}` } },
       );
 
-      console.log("Member removal response:", response.data);
+      // console.log("Member removal response:", response.data);
 
       setMembers((prevMembers) =>
         prevMembers.filter((member) => member.id !== memberId),

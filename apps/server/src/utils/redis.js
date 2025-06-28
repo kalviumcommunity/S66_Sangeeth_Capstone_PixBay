@@ -7,7 +7,7 @@ const redisClient = createClient({
     reconnectStrategy: (retries) => {
       // Exponential backoff with maximum delay of 30 seconds
       const delay = Math.min(Math.pow(2, retries) * 1000, 30000);
-      console.log(`Reconnecting to Redis in ${delay}ms...`);
+      // console.log(`Reconnecting to Redis in ${delay}ms...`);
       return delay;
     }
   }
@@ -23,16 +23,16 @@ redisClient.on('error', (err) => {
 });
 
 redisClient.on('connect', () => {
-  console.log('Redis connection established');
+  // console.log('Redis connection established');
   isRedisConnected = true;
 });
 
 redisClient.on('reconnecting', () => {
-  console.log('Redis reconnecting...');
+  // console.log('Redis reconnecting...');
 });
 
 redisClient.on('end', () => {
-  console.log('Redis connection closed');
+  // console.log('Redis connection closed');
   isRedisConnected = false;
 });
 
@@ -40,7 +40,7 @@ redisClient.on('end', () => {
 (async () => {
   try {
     await redisClient.connect();
-    console.log('Connected to Redis successfully');
+    // console.log('Connected to Redis successfully');
     isRedisConnected = true;
   } catch (error) {
     console.error('Failed to connect to Redis:', error);
@@ -117,9 +117,9 @@ export const checkRedisHealthAndReconnect = async () => {
   
   if (!isRedisConnected) {
     try {
-      console.log('Attempting to reconnect to Redis...');
+      // console.log('Attempting to reconnect to Redis...');
       await redisClient.connect();
-      console.log('Redis reconnection successful');
+      // console.log('Redis reconnection successful');
       return true;
     } catch (error) {
       console.error('Redis reconnection failed:', error);

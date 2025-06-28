@@ -99,14 +99,14 @@ const LandingPage = () => {
   // Handle user data changes
   useEffect(() => {
     if (userData) {
-      console.log("User data response:", userData);
+      // console.log("User data response:", userData);
 
       if (userData.exists) {
         setUserName(userData.name || "");
         const shouldShowNameModal = !userData.hasName || !userData.name;
         setShowNameModal(shouldShowNameModal);
       } else {
-        console.log("User doesn't exist, showing name modal");
+        // console.log("User doesn't exist, showing name modal");
         setShowNameModal(true);
       }
     }
@@ -114,11 +114,11 @@ const LandingPage = () => {
 
   // Log the workspaces data when it changes
   useEffect(() => {
-    console.log("Workspaces state:", {
-      isArray: Array.isArray(workspaces),
-      length: workspaces?.length || 0,
-      data: workspaces,
-    });
+    // console.log("Workspaces state:", {
+    //   isArray: Array.isArray(workspaces),
+    //   length: workspaces?.length || 0,
+    //   data: workspaces,
+    // });
   }, [workspaces]);
 
   const handleNameSubmit = () => {
@@ -159,7 +159,7 @@ const LandingPage = () => {
     // Use the createWorkspace hook instead of direct API call
     createWorkspace(finalWorkspaceName, {
       onSuccess: () => {
-        console.log("Workspace created with name:", finalWorkspaceName);
+        // console.log("Workspace created with name:", finalWorkspaceName);
         setShowWorkspaceModal(false);
         navigate(`/workspace/${finalWorkspaceName}`);
       },
@@ -187,7 +187,7 @@ const LandingPage = () => {
     // Use the joinWorkspace hook instead of direct API call
     joinWorkspace(roomCode, {
       onSuccess: () => {
-        console.log("Joined workspace:", roomCode);
+        // console.log("Joined workspace:", roomCode);
         navigate(`/workspace/${roomCode}`);
       },
       onError: (error: unknown) => {

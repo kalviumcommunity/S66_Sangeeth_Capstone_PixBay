@@ -42,7 +42,7 @@ function Inbox({ darkMode = true }: InboxProps) {
   }, [getToken]);
 
   useEffect(() => {
-    console.log("Dark mode changed:", darkMode);
+    // console.log("Dark mode changed:", darkMode);
     setForceRender((prev) => prev + 1);
   }, [darkMode]);
 

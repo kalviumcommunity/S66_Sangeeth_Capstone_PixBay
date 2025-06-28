@@ -212,11 +212,11 @@ const WhiteBoard: React.FC<WhiteBoardProps> = ({ roomCode, userId }) => {
 
       newSocket.on("connect", () => {
         reconnectAttempts = 0;
-        console.log("Whiteboard connected:", newSocket.id);
+        // console.log("Whiteboard connected:", newSocket.id);
         newSocket.emit("join-whiteboard", roomCode);
 
         if (isReconnecting) {
-          console.log("Requesting whiteboard history after reconnection");
+          // console.log("Requesting whiteboard history after reconnection");
           newSocket.emit("get-whiteboard-history", roomCode);
           isReconnecting = false;
         }
@@ -230,7 +230,7 @@ const WhiteBoard: React.FC<WhiteBoardProps> = ({ roomCode, userId }) => {
       });
 
       newSocket.on("disconnect", (reason) => {
-        console.log("Whiteboard disconnected:", reason);
+        // console.log("Whiteboard disconnected:", reason);
         if (reason === "io server disconnect") {
           // Manual reconnection needed
           setTimeout(() => {
@@ -248,7 +248,7 @@ const WhiteBoard: React.FC<WhiteBoardProps> = ({ roomCode, userId }) => {
       });
 
       newSocket.on("whiteboard-history", (history) => {
-        console.log("Received whiteboard history:", history);
+        // console.log("Received whiteboard history:", history);
         if (Array.isArray(history) && history.length > 0) {
           setPrevActions(history);
           actionsRef.current = history;
@@ -298,7 +298,7 @@ const WhiteBoard: React.FC<WhiteBoardProps> = ({ roomCode, userId }) => {
           console.log(
             `Canvas resized from ${prevWidth}x${prevHeight} to ${canvasRef.current.width}x${canvasRef.current.height}`,
           );
-          console.log(`Redrawing ${actionsRef.current.length} actions`);
+          // console.log(`Redrawing ${actionsRef.current.length} actions`);
 
           redrawCanvas(actionsRef.current);
         }

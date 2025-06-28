@@ -3,10 +3,10 @@ import prisma from '../db.js'
 export const checkUserExists = async (req, res) => {
   try {
     const { email } = req.query;
-    console.log('Checking user with email:', email);
+    // console.log('Checking user with email:', email);
 
     if (!email) {
-      console.log('Email missing in query parameters');
+      // console.log('Email missing in query parameters');
       return res.status(400).json({ error: 'Email parameter is required' });
     }
 
@@ -20,7 +20,7 @@ export const checkUserExists = async (req, res) => {
     });
 
     if (user) {
-      console.log('User found:', user); // Add this to debug
+      // console.log('User found:', user); // Add this to debug
       res.status(200).json({ 
         exists: true, 
         id: user.id,  // Make sure this is being sent
@@ -42,7 +42,7 @@ export const checkUserExists = async (req, res) => {
 export const createUser = async (req, res) => {
   try {
     const { email, name, role } = req.body;
-    console.log('Creating user with:', { email, name, role });
+    // console.log('Creating user with:', { email, name, role });
 
     if (!email) {
       return res.status(400).json({ error: 'Email is required' });
@@ -55,7 +55,7 @@ export const createUser = async (req, res) => {
         role: role || 'MEMBER',
       },
     });
-    console.log('User created:', user);
+    // console.log('User created:', user);
 
     res.status(201).json({ message: 'User created successfully', user });
   } catch (error) {
@@ -92,8 +92,8 @@ export const updateUser = async (req, res) => {
     const { id } = req.params;
     const { email, name, role } = req.body;
 
-    console.log('Updating user with ID:', id);
-    console.log('Update data:', { email, name, role });
+    // console.log('Updating user with ID:', id);
+    // console.log('Update data:', { email, name, role });
 
     // First check if user exists
     const existingUser = await prisma.user.findUnique({
@@ -101,7 +101,7 @@ export const updateUser = async (req, res) => {
     });
 
     if (!existingUser) {
-      console.log(`User with ID ${id} not found`);
+      // console.log(`User with ID ${id} not found`);
       return res.status(404).json({ error: 'User not found' });
     }
 
@@ -115,11 +115,11 @@ export const updateUser = async (req, res) => {
       },
     });
 
-    console.log('User updated successfully:', user);
+    // console.log('User updated successfully:', user);
     res.status(200).json({ message: 'User updated successfully', user });
   } catch (error) {
     if (error.code === 'P2025') { // Prisma error for record not found
-      console.log('Prisma record not found error:', error);
+      // console.log('Prisma record not found error:', error);
       return res.status(404).json({ error: 'User not found' });
     }
     console.error('Error in updateUser:', error);
@@ -132,8 +132,8 @@ export const updateUserByEmail = async (req, res) => {
     const { email } = req.params;
     const { name, role } = req.body;
     
-    console.log('Updating user with email:', email);
-    console.log('Update data:', { name, role });
+    // console.log('Updating user with email:', email);
+    // console.log('Update data:', { name, role });
 
     // First check if user exists
     const existingUser = await prisma.user.findUnique({
@@ -141,7 +141,7 @@ export const updateUserByEmail = async (req, res) => {
     });
 
     if (!existingUser) {
-      console.log(`User with email ${email} not found, creating new user`);
+      // console.log(`User with email ${email} not found, creating new user`);
       // Create new user if not found
       const newUser = await prisma.user.create({
         data: {
@@ -162,7 +162,7 @@ export const updateUserByEmail = async (req, res) => {
       },
     });
 
-    console.log('User updated successfully:', user);
+    // console.log('User updated successfully:', user);
     res.status(200).json({ message: 'User updated successfully', user });
   } catch (error) {
     console.error('Error in updateUserByEmail:', error);

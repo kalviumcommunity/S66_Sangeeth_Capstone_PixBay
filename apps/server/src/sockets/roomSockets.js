@@ -6,14 +6,14 @@ export const roomSockets = (io) => {
 
   io.on("connection", (socket) => {
     const { roomCode, userId } = socket.handshake.query;
-    console.log(
-      "User connected:",
-      socket.id,
-      "Room:",
-      roomCode,
-      "User:",
-      userId
-    );
+    // console.log(
+    //   "User connected:",
+    //   socket.id,
+    //   "Room:",
+    //   roomCode,
+    //   "User:",
+    //   userId
+    // );
 
     // Handle reconnection
     if (roomCode) {
@@ -25,7 +25,7 @@ export const roomSockets = (io) => {
     }
 
     socket.on("join-room", async (roomName, peerId) => {
-      console.log("Join-room received:", roomName, peerId);
+      // console.log("Join-room received:", roomName, peerId);
       socket.join(roomName);
       socket.to(roomName).emit("user-connected", peerId);
 
@@ -46,14 +46,14 @@ export const roomSockets = (io) => {
       }
 
       socket.on("disconnect", () => {
-        console.log("User disconnected:", socket.id, peerId);
+        // console.log("User disconnected:", socket.id, peerId);
         socket.to(roomName).emit("user-disconnected", peerId);
       });
     });
 
     // Chat message handling
     socket.on("send-message", async ({ roomCode, message, email }) => {
-      console.log("Chat message received:", message, "for room:", roomCode);
+      // console.log("Chat message received:", message, "for room:", roomCode);
       try {
         const user = await prisma.user.findFirst({
           where: { email: email },
@@ -84,7 +84,7 @@ export const roomSockets = (io) => {
 
     // Whiteboard handling with improved history management
     socket.on("join-whiteboard", (roomCode) => {
-      console.log(`User ${socket.id} joined whiteboard for room: ${roomCode}`);
+      // console.log(`User ${socket.id} joined whiteboard for room: ${roomCode}`);
       socket.join(roomCode);
 
       // Initialize room history if needed
@@ -213,9 +213,9 @@ export const roomSockets = (io) => {
         if (history.length > 10000) {
           const keepLast = 5000;
           history.splice(0, history.length - keepLast);
-          console.log(
-            `Trimmed history for room ${roomCode} to ${keepLast} actions`
-          );
+          // console.log(
+          //   `Trimmed history for room ${roomCode} to ${keepLast} actions`
+          // );
         }
 
         // Broadcast batch to room members with original quality
@@ -239,7 +239,7 @@ export const roomSockets = (io) => {
 
     // Enhanced cleanup on disconnect
     socket.on("disconnect", () => {
-      console.log("User disconnected:", socket.id);
+      // console.log("User disconnected:", socket.id);
 
       if (roomCode) {
         // Handle connected users cleanup
@@ -247,7 +247,7 @@ export const roomSockets = (io) => {
           connectedUsers.get(roomCode).delete(socket.id);
           if (connectedUsers.get(roomCode).size === 0) {
             connectedUsers.delete(roomCode);
-            console.log(`Room ${roomCode} is now empty`);
+            // console.log(`Room ${roomCode} is now empty`);
           }
         }
 
@@ -255,7 +255,7 @@ export const roomSockets = (io) => {
         const room = io.sockets.adapter.rooms.get(roomCode);
         if (!room || room.size === 0) {
           whiteboardHistory.delete(roomCode);
-          console.log(`Cleaned up whiteboard history for room: ${roomCode}`);
+          // console.log(`Cleaned up whiteboard history for room: ${roomCode}`);
         }
       }
     });

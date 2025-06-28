@@ -45,7 +45,7 @@ export function FormModal({
         },
       );
 
-      console.log("Project created:", response.data);
+      // console.log("Project created:", response.data);
       onClose();
       if (onProjectCreated) {
         onProjectCreated();

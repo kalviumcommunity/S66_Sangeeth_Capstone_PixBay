@@ -5,7 +5,7 @@ import { withCacheInvalidation } from '../utils/transactionHelpers.js';
 
 export const createWorkspace = async (req, res) => {
   try {
-    console.log("createWorkspace called", req.body, req.auth);
+    // console.log("createWorkspace called", req.body, req.auth);
     const { name } = req.body;
     const { emailAddresses } = req.auth;
     const email = emailAddresses?.[0]?.emailAddress;
@@ -133,10 +133,10 @@ export const getUserWorkspaces = async (req, res) => {
     const { emailAddresses } = req.auth;
     const email = emailAddresses?.[0]?.emailAddress;
     
-    console.log("Getting workspaces for email:", email);
+    // console.log("Getting workspaces for email:", email);
 
     if (!email) {
-      console.log("No email found in auth data");
+      // console.log("No email found in auth data");
       return res.status(400).json({ error: "Email not found in authentication data" });
     }
 
@@ -145,12 +145,12 @@ export const getUserWorkspaces = async (req, res) => {
     const cachedWorkspaces = await getCache(cacheKey);
     
     if (cachedWorkspaces) {
-      console.log("Returning workspaces from cache for:", email);
+      // console.log("Returning workspaces from cache for:", email);
       return res.status(200).json(cachedWorkspaces);
     }
     
     // Cache miss, fetch from database
-    console.log("Cache miss, fetching workspaces from database for:", email);
+    // console.log("Cache miss, fetching workspaces from database for:", email);
 
     // First check if user exists
     const user = await prisma.user.findFirst({
@@ -158,11 +158,11 @@ export const getUserWorkspaces = async (req, res) => {
     });
 
     if (!user) {
-      console.log("User not found with email:", email);
+      // console.log("User not found with email:", email);
       return res.status(404).json({ error: "User not found" });
     }
 
-    console.log("Found user with ID:", user.id);
+    // console.log("Found user with ID:", user.id);
 
     // Use a simpler query that's less likely to fail
     const workspaceMembers = await prisma.workspaceMember.findMany({
@@ -170,7 +170,7 @@ export const getUserWorkspaces = async (req, res) => {
       include: { workspace: true },
     });
 
-    console.log(`Found ${workspaceMembers.length} workspaces for user`);
+    // console.log(`Found ${workspaceMembers.length} workspaces for user`);
 
     // Map to the expected format
     const workspaces = workspaceMembers.map(member => ({
@@ -195,7 +195,7 @@ export const getUserWorkspaces = async (req, res) => {
 export const workSpaceMembers = async (req, res) => {
   try {
     const { name } = req.params;
-    console.log("Workspace name received:", name);
+    // console.log("Workspace name received:", name);
 
     if (!name) {
       return res.status(400).json({ error: "Workspace name is required" });
@@ -206,7 +206,7 @@ export const workSpaceMembers = async (req, res) => {
     const cachedWorkspaceDetails = await getCache(cacheKey);
     
     if (cachedWorkspaceDetails) {
-      console.log("Returning workspace members from cache for:", name);
+      // console.log("Returning workspace members from cache for:", name);
       return res.status(200).json(cachedWorkspaceDetails);
     }
 
@@ -260,8 +260,8 @@ export const workSpaceMembers = async (req, res) => {
       projectCount: workspace.projects.length,
     };
 
-    console.log("Returning workspace members with IDs:", 
-      workspaceDetails.members.map(m => ({ memberId: m.id, userId: m.userId })));
+    // console.log("Returning workspace members with IDs:", 
+    //   workspaceDetails.members.map(m => ({ memberId: m.id, userId: m.userId })));
 
     // Cache the workspace details (expire after 30 minutes)
     await setCache(cacheKey, workspaceDetails, 1800);
@@ -287,7 +287,7 @@ export const getWorkspaceByName = async (req, res) => {
     const cachedWorkspace = await getCache(cacheKey);
     
     if (cachedWorkspace) {
-      console.log("Returning workspace from cache for:", name);
+      // console.log("Returning workspace from cache for:", name);
       return res.status(200).json(cachedWorkspace);
     }
 
@@ -384,7 +384,7 @@ export const removeWorkspaceMember = async (req, res) => {
     const { emailAddresses } = req.auth;
     const email = emailAddresses?.[0]?.emailAddress;
 
-    console.log("Removing member with ID:", memberId);
+    // console.log("Removing member with ID:", memberId);
 
     if (!memberId) {
       return res.status(400).json({ error: "Member ID is required" });
@@ -399,7 +399,7 @@ export const removeWorkspaceMember = async (req, res) => {
       return res.status(404).json({ error: "User not found" });
     }
 
-    console.log("Current user:", user.id);
+    // console.log("Current user:", user.id);
 
     // Get the member to be removed
     const memberToRemove = await prisma.workspaceMember.findUnique({
@@ -407,7 +407,7 @@ export const removeWorkspaceMember = async (req, res) => {
       include: { workspace: true }
     });
 
-    console.log("Member to remove:", memberToRemove);
+    // console.log("Member to remove:", memberToRemove);
 
     if (!memberToRemove) {
       return res.status(404).json({ error: `Member not found with ID: ${memberId}` });

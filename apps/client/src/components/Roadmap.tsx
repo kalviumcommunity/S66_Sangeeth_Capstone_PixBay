@@ -94,7 +94,7 @@ const statusConfig = {
 };
 
 const Roadmap: React.FC<RoadmapProps> = ({ workspaceName, darkMode }) => {
-  console.log("Workspace name prop:", workspaceName);
+  // console.log("Workspace name prop:", workspaceName);
   const [milestones, setMilestones] = useState<Milestone[]>([]);
   const [expandedMilestones, setExpandedMilestones] = useState<string[]>([]);
   const [tasksByMilestone, setTasksByMilestone] = useState<{

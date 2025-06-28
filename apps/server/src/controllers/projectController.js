@@ -70,11 +70,11 @@ export const getWorkspaceProjects = async (req, res) => {
       const cachedProjects = await getCache(cacheKey);
       
       if (cachedProjects) {
-        console.log(`[Cache] ✅ Cache HIT: Found projects for workspace ${workspaceName} in cache`);
+        // console.log(`[Cache] ✅ Cache HIT: Found projects for workspace ${workspaceName} in cache`);
         return res.status(200).json(cachedProjects);
       }
 
-      console.log(`[Cache] ❌ Cache MISS: No projects found in cache for workspace ${workspaceName}, fetching from database...`);
+      // console.log(`[Cache] ❌ Cache MISS: No projects found in cache for workspace ${workspaceName}, fetching from database...`);
 
       const workspace = await prisma.workspace.findFirst({
         where: { name: workspaceName },
@@ -117,7 +117,7 @@ export const getWorkspaceProjects = async (req, res) => {
 
       // Cache the projects for 1 hour
       await setCache(cacheKey, workspace.projects, 3600);
-      console.log(`[Cache] ✅ Successfully cached projects for workspace ${workspaceName}`);
+      // console.log(`[Cache] ✅ Successfully cached projects for workspace ${workspaceName}`);
 
       res.status(200).json(workspace.projects);
     } catch (error) {
@@ -139,11 +139,11 @@ export const getProjectInfo = async(req, res) => {
     const cachedProjectInfo = await getCache(cacheKey);
     
     if (cachedProjectInfo) {
-      console.log(`[Cache] ✅ Cache HIT: Found project info for ${projectId} in cache`);
+      // console.log(`[Cache] ✅ Cache HIT: Found project info for ${projectId} in cache`);
       return res.status(200).json(cachedProjectInfo);
     }
 
-    console.log(`[Cache] ❌ Cache MISS: No project info found in cache for ${projectId}, fetching from database...`);
+    // console.log(`[Cache] ❌ Cache MISS: No project info found in cache for ${projectId}, fetching from database...`);
     
     const project = await prisma.project.findUnique({
       where: { id: projectId },
@@ -199,7 +199,7 @@ export const getProjectInfo = async(req, res) => {
 
     // Cache the project info for 1 hour
     await setCache(cacheKey, projectData, 3600);
-    console.log(`[Cache] ✅ Successfully cached project info for ${projectId}`);
+    // console.log(`[Cache] ✅ Successfully cached project info for ${projectId}`);
     
     res.status(200).json(projectData);
   } catch (error) {

@@ -137,7 +137,7 @@ const CalenderTaskModal: React.FC<CalenderTaskModalProps> = ({
         assigneeId: assigneeId || undefined,
       };
 
-      console.log("Data being sent to backend:", data);
+      // console.log("Data being sent to backend:", data);
 
       const response = await axios.post(
         getApiEndpoint("/api/tasks/create"),
@@ -147,7 +147,7 @@ const CalenderTaskModal: React.FC<CalenderTaskModalProps> = ({
         },
       );
 
-      console.log("Task created:", response.data);
+      // console.log("Task created:", response.data);
       onTaskAdded();
       onClose();
     } catch (error: unknown) {
@@ -300,7 +300,7 @@ const CalenderTaskModal: React.FC<CalenderTaskModalProps> = ({
                   <select
                     value={selectedProjectId}
                     onChange={(e) => {
-                      console.log("Selected project ID:", e.target.value);
+                      // console.log("Selected project ID:", e.target.value);
                       setSelectedProjectId(e.target.value);
                     }}
                     className={inputStyles}

@@ -67,7 +67,7 @@ export function Members({ workspaceName, darkMode = true }: MembersProps) {
   };
 
   useEffect(() => {
-    console.log("Members component received workspace name:", workspaceName);
+    // console.log("Members component received workspace name:", workspaceName);
     fetchWorkspaceMembers();
   }, [workspaceName]);
 

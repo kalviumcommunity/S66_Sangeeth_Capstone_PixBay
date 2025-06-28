@@ -12,7 +12,7 @@ export async function verifyDatabaseConnection() {
     
     // Run a simple query to check connection
     await prisma.$queryRaw`SELECT 1`
-    console.log('✅ PostgreSQL database connected')
+    // console.log('✅ PostgreSQL database connected')
     return true
   } catch (error) {
     console.error('❌ Unable to connect to the PostgreSQL database:', error)

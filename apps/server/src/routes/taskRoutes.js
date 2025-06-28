@@ -6,7 +6,7 @@ const router = express.Router();
 
 // Add a debug middleware to log all incoming requests
 router.use((req, res, next) => {
-  console.log(`Task API request: ${req.method} ${req.originalUrl}`);
+  // console.log(`Task API request: ${req.method} ${req.originalUrl}`);
   next();
 });
 

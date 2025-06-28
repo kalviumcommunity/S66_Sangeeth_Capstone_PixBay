@@ -130,7 +130,7 @@ export function Sidebar({
         handleProjectSelect(projects[0].id);
       }
     } catch (error) {
-      console.log(error);
+      // console.log(error);
     } finally {
       setIsLoading(false);
     }

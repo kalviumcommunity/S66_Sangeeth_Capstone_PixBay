@@ -9,8 +9,8 @@ export const getUserNotifications = async (req, res) => {
       where: { email: email },
     });
 
-    console.log("Authenticated user:", user);
-    console.log("User ID for query:", user.id);
+    // console.log("Authenticated user:", user);
+    // console.log("User ID for query:", user.id);
 
     if (!user) {
       return res.status(404).json({ error: "User not found" });

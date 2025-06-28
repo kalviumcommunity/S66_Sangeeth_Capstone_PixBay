@@ -1,7 +1,7 @@
 import { requireAuth, clerkClient } from '@clerk/express';
 
 const authMiddleware = async (req, res, next) => {
-  console.log('authMiddleware triggered');
+  // console.log('authMiddleware triggered');
   // Use requireAuth to ensure the user is authenticated and attach req.auth
   requireAuth({
     onError: (req, res) => {
@@ -11,7 +11,7 @@ const authMiddleware = async (req, res, next) => {
     if (err) return next(err);
 
     try {
-      // Fetch the user’s details from Clerk using userId
+      // Fetch the user's details from Clerk using userId
       const user = await clerkClient.users.getUser(req.auth.userId);
 
       // Attach emailAddresses to req.auth
@@ -46,7 +46,7 @@ export default authMiddleware;
 
 //     try {
 //       console.log('req.auth after requireAuth:', req.auth);
-//       // Fetch the user’s details from Clerk using userId
+//       // Fetch the user's details from Clerk using userId
 //       const user = await clerkClient.users.getUser(req.auth.userId);
 //       console.log('Fetched Clerk user:', user);
 

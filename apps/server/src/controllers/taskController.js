@@ -96,7 +96,7 @@ export const createTask = async (req, res) => {
       }
     }
 
-    console.log(`[Cache] Creating new task and invalidating caches...`);
+    // console.log(`[Cache] Creating new task and invalidating caches...`);
 
     // Use transaction helper for coordinated DB and cache operations
     const { task } = await withCacheInvalidation(
@@ -160,10 +160,10 @@ export const createTask = async (req, res) => {
       },
       // Cache invalidation operation
       async () => {
-        console.log(`[Cache] 🗑️ Invalidating caches for project ${projectId} and workspace ${workspace.name}...`);
+        // console.log(`[Cache] 🗑️ Invalidating caches for project ${projectId} and workspace ${workspace.name}...`);
         await deleteCache(`project-tasks:${projectId}`);
         await deleteCache(`workspace-tasks:${workspace.name}`);
-        console.log(`[Cache] ✅ Successfully invalidated caches`);
+        // console.log(`[Cache] ✅ Successfully invalidated caches`);
       },
       "Create task"
     );
@@ -182,18 +182,18 @@ export const getProjectTasks = async (req, res) => {
     const { emailAddresses } = req.auth;
     const email = emailAddresses?.[0]?.emailAddress;
 
-    console.log(`[Cache] Attempting to get tasks for project ${projectId} from cache...`);
+    // console.log(`[Cache] Attempting to get tasks for project ${projectId} from cache...`);
 
     // Try to get from cache first
     const cacheKey = `project-tasks:${projectId}`;
     const cachedTasks = await getCache(cacheKey);
     
     if (cachedTasks) {
-      console.log(`[Cache] ✅ Cache HIT: Found ${cachedTasks.length} tasks for project ${projectId} in cache`);
+      // console.log(`[Cache] ✅ Cache HIT: Found ${cachedTasks.length} tasks for project ${projectId} in cache`);
       return res.status(200).json(cachedTasks);
     }
 
-    console.log(`[Cache] ❌ Cache MISS: No tasks found in cache for project ${projectId}, fetching from database...`);
+    // console.log(`[Cache] ❌ Cache MISS: No tasks found in cache for project ${projectId}, fetching from database...`);
 
     // Find user by email
     const user = await prisma.user.findFirst({
@@ -239,10 +239,10 @@ export const getProjectTasks = async (req, res) => {
       },
     });
 
-    console.log(`[Cache] 📝 Caching ${tasks.length} tasks for project ${projectId}...`);
+    // console.log(`[Cache] 📝 Caching ${tasks.length} tasks for project ${projectId}...`);
     // Cache the tasks for 1 hour
     await setCache(cacheKey, tasks, 3600);
-    console.log(`[Cache] ✅ Successfully cached tasks for project ${projectId}`);
+    // console.log(`[Cache] ✅ Successfully cached tasks for project ${projectId}`);
 
     res.status(200).json(tasks);
   } catch (error) {
@@ -311,7 +311,7 @@ export const deleteTask = async (req, res) => {
         .json({ error: "You don't have permission to delete this task" });
     }
 
-    console.log(`[Cache] Deleting task ${taskId} and invalidating caches...`);
+    // console.log(`[Cache] Deleting task ${taskId} and invalidating caches...`);
 
     // Use transaction helper for coordinated DB and cache operations
     await withCacheInvalidation(
@@ -338,10 +338,10 @@ export const deleteTask = async (req, res) => {
       },
       // Cache invalidation operation
       async () => {
-        console.log(`[Cache] 🗑️ Invalidating caches for project ${task.projectId} and workspace ${task.parentId}...`);
+        // console.log(`[Cache] 🗑️ Invalidating caches for project ${task.projectId} and workspace ${task.parentId}...`);
         await deleteCache(`project-tasks:${task.projectId}`);
         await deleteCache(`workspace-tasks:${task.parentId}`);
-        console.log(`[Cache] ✅ Successfully invalidated caches`);
+        // console.log(`[Cache] ✅ Successfully invalidated caches`);
       },
       "Delete task"
     );
@@ -360,18 +360,18 @@ export const getTasksByWorkspaceName = async (req, res) => {
     const { emailAddresses } = req.auth;
     const email = emailAddresses?.[0]?.emailAddress;
 
-    console.log(`[Cache] Attempting to get tasks for workspace ${workspaceName} from cache...`);
+    // console.log(`[Cache] Attempting to get tasks for workspace ${workspaceName} from cache...`);
 
     // Try to get from cache first
     const cacheKey = `workspace-tasks:${workspaceName}`;
     const cachedTasks = await getCache(cacheKey);
     
     if (cachedTasks) {
-      console.log(`[Cache] ✅ Cache HIT: Found ${cachedTasks.length} tasks for workspace ${workspaceName} in cache`);
+      // console.log(`[Cache] ✅ Cache HIT: Found ${cachedTasks.length} tasks for workspace ${workspaceName} in cache`);
       return res.status(200).json(cachedTasks);
     }
 
-    console.log(`[Cache] ❌ Cache MISS: No tasks found in cache for workspace ${workspaceName}, fetching from database...`);
+    // console.log(`[Cache] ❌ Cache MISS: No tasks found in cache for workspace ${workspaceName}, fetching from database...`);
 
     // Find user by email
     const user = await prisma.user.findFirst({
@@ -417,10 +417,10 @@ export const getTasksByWorkspaceName = async (req, res) => {
       },
     });
 
-    console.log(`[Cache] 📝 Caching ${tasks.length} tasks for workspace ${workspaceName}...`);
+    // console.log(`[Cache] 📝 Caching ${tasks.length} tasks for workspace ${workspaceName}...`);
     // Cache the tasks for 1 hour
     await setCache(cacheKey, tasks, 3600);
-    console.log(`[Cache] ✅ Successfully cached tasks for workspace ${workspaceName}`);
+    // console.log(`[Cache] ✅ Successfully cached tasks for workspace ${workspaceName}`);
 
     res.status(200).json(tasks);
   } catch (error) {
@@ -498,7 +498,7 @@ export const updateTask = async (req, res) => {
         .json({ error: "You don't have permission to update this task" });
     }
 
-    console.log(`[Cache] Updating task ${taskId} and invalidating caches...`);
+    // console.log(`[Cache] Updating task ${taskId} and invalidating caches...`);
 
     // Use transaction helper for coordinated DB and cache operations
     const { updatedTask } = await withCacheInvalidation(
@@ -535,10 +535,10 @@ export const updateTask = async (req, res) => {
       },
       // Cache invalidation operation
       async () => {
-        console.log(`[Cache] 🗑️ Invalidating caches for project ${task.projectId} and workspace ${task.parentId}...`);
+        // console.log(`[Cache] 🗑️ Invalidating caches for project ${task.projectId} and workspace ${task.parentId}...`);
         await deleteCache(`project-tasks:${task.projectId}`);
         await deleteCache(`workspace-tasks:${task.parentId}`);
-        console.log(`[Cache] ✅ Successfully invalidated caches`);
+        // console.log(`[Cache] ✅ Successfully invalidated caches`);
       },
       "Update task"
     );

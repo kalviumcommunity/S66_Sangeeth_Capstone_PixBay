@@ -149,16 +149,16 @@ const Calendar: React.FC<CalendarProps> = ({ workspaceName, darkMode }) => {
   const handleDateClick = (arg: DateClickArg) => {
     setSelectedDate(arg.dateStr);
     setTaskState(true);
-    console.log("Date clicked", arg);
+    // console.log("Date clicked", arg);
   };
 
   const handleEventClick = (arg: EventClickArg) => {
-    console.log("Event clicked", arg);
+    // console.log("Event clicked", arg);
   };
 
   const handleTaskAdded = () => {
     fetchTasksByWorkspaceName();
-    console.log("Task added successfully");
+    // console.log("Task added successfully");
   };
 
   const viewOptions = [
