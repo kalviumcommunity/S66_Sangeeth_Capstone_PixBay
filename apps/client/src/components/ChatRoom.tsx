@@ -40,7 +40,7 @@ const ChatRoom: React.FC<ChatRoomProps> = ({
       setMessages(prevMsgs);
     });
 
-    newSocket.on("receive-message", (message) => {
+    newSocket.on("receive-message", () => {
       // console.log("New message received:", message);
       // setMessages((prev) => [...prev, message]);
     });

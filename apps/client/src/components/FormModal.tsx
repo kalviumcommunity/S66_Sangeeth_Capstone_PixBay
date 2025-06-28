@@ -33,7 +33,7 @@ export function FormModal({
 
     try {
       const token = await getToken();
-      const response = await axios.post(
+      await axios.post(
         getApiEndpoint("api/projects"),
         {
           name,

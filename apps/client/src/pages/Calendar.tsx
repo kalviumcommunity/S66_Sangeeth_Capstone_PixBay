@@ -152,7 +152,7 @@ const Calendar: React.FC<CalendarProps> = ({ workspaceName, darkMode }) => {
     // console.log("Date clicked", arg);
   };
 
-  const handleEventClick = (arg: EventClickArg) => {
+  const handleEventClick = () => {
     // console.log("Event clicked", arg);
   };
 

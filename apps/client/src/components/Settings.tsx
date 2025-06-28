@@ -303,7 +303,7 @@ export function Settings({
       // console.log("Attempting to remove member with ID:", memberId);
       const token = await getToken();
 
-      const response = await axios.delete(
+      await axios.delete(
         api.getApiEndpoint(`/api/workspaces/members/${memberId}`),
         { headers: { Authorization: `Bearer ${token}` } },
       );
